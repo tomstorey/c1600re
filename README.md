@@ -1,6 +1,32 @@
 # Cisco 1600R Series Reverse Engineering
 Documented here is my effort to reverse engineer enough detail about the Cisco 1600R series router platform in order to be able to run my own code.
 
+- [Cisco 1600R Series Reverse Engineering](#cisco-1600r-series-reverse-engineering)
+    + [Rationale](#rationale)
+    + [Platform Brief](#platform-brief)
+    + [Conventions](#conventions)
+  * [Memories](#memories)
+    + [Boot ROMs](#boot-roms)
+    + [NVRAM](#nvram)
+    + [DRAM](#dram)
+    + [Flash](#flash)
+  * [Peripherals](#peripherals)
+    + [UART](#uart)
+    + [Timers](#timers)
+    + [Watchdog](#watchdog)
+    + [Ethernet Controller](#ethernet-controller)
+    + [GPIO](#gpio)
+    + [DMA](#dma)
+  * [Peripherals and External Registers](#peripherals-and-external-registers)
+    + [WIC Slot](#wic-slot)
+    + [On-board ISDN Controller](#on-board-isdn-controller)
+    + [System Option Register](#system-option-register)
+    + [LED Control Register](#led-control-register)
+- [Other](#other)
+  * [Minimal Startup Code](#minimal-startup-code)
+  * [Reset Button Modification](#reset-button-modification)
+  * [Overclocking](#overclocking)
+
 ### Rationale
 This was an extension of my [Cisco 2500 reverse engineering](https://github.com/tomstorey/c2500re) effort, something which I took up while waiting for some PCBs to arrive to test out an idea for providing IO via one of the Flash sockets.
 
