@@ -387,10 +387,10 @@ The outputs of the register are used to sink current via the LEDs, so the logic 
         </tr>
         <tr>
             <td align="center">OK</td>
-            <td align="center">B1</td>
-            <td align="center">B2</td>
-            <td align="center">CD</td>
-            <td align="center">ACT</td>
+            <td align="center">LED1</td>
+            <td align="center">LED2</td>
+            <td align="center">LED3</td>
+            <td align="center">LED4</td>
             <td></td>
             <td></td>
             <td></td>
@@ -401,20 +401,63 @@ The outputs of the register are used to sink current via the LEDs, so the logic 
 Bit 7: OK: OK LED<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
-Bit 6: B1: BRI B1 LED<br>
+Bit 6: LED1: Multi-purpose LED 1<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
-Bit 5: B2: BRI B2 LED<br>
+Bit 5: LED2: Multi-purpose LED 2<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
-Bit 4: CD: WIC CD LED<br>
+Bit 4: LED3: Multi-purpose LED 3<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
-Bit 3: ACT: WIC ACT LED<br>
+Bit 3: LED4: Multi-purpose LED 4<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
 
+Due to there being a variety of different 1600R models, 4 of the LEDs are effectively "multi-purpose" in that depending on the router model, they may indicate something slightly different. The physical layout of the LEDs is the same regardless of the router, so refer to the table below for a hint as to which LED is located where.
+
+<table>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td>LED1</td>
+            <td></td>
+            <td>LED3</td>
+        </tr>
+        <tr>
+            <td>OK</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td>LED2</td>
+            <td></td>
+            <td>LED4</td>
+        </tr>
+    </tbody>
+</table>
+
 # Other
+
+## Minimal Startup Code
+Getting a 68360 up and running is a bit involved. My best suggestion would be to look at the source for the serial bootloader or sample FreeRTOS applications as working examples to build on.
+
+Across these two examples you will find code to:
+
+* Perform the bare minimum system configuration to jump to main()
+* Initialise OR and BR registers to map chip selects to memory windows
+* Configure DRAM interfaces and refreshing
+* Configure the PLL to reach a target operating frequency
+* Copy intitialised data from ROM to RAM and clear the BSS area
+* Initialise the SMC1 to provide UART for serial communications
+* Configure some interrupts
+
+The serial bootloader in particular is an example of using SDAM channels and buffer descriptors to send and receive data over the UART.
 
 ## Reset Button Modification
 The hardware as supplied does not include a reset button, but one can be added very easily.
