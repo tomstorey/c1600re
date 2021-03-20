@@ -315,7 +315,7 @@ Bits 2-0: WAIT: Wait states for access<br>
 &nbsp;&nbsp;&nbsp;&nbsp;011: 9 clocks<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1xx: 10 clocks<br>
 
-Initialisation of the PCMCIA controller can be achieved using the following process:
+Initialisation of the PCMCIA controller can be achieved using the following process (preliminary, see notes [here](#peripherals-and-external-registers)):
 
 1. Check if (as a long) the registers of the PCMCIA controller are 0, if they are, skip initialisation
 2. Read the Socket Status Register, AND the value with 0xC0, and if the result is 0 then a flash card is present
@@ -388,7 +388,7 @@ init_pcmcia_controller(void)
 
 If the initialisation completes successfully, the card is now readable.
 
-Write access is still a work in progress. Attempting a write to address 0x08000000 produces a bus error due to write protection. Initially I thought that bit 7 of the Socket Access Control Register may have been a write access enable bit, but this error occurrs regardless of the state of that bit. Therefore, I think there may be some kind of command that needs to be issued to the flash card to disable write protection, or there is additional controller initialisation to be performed. TODO
+Write access is still a work in progress. TODO
 
 ## Peripherals
 
@@ -479,6 +479,9 @@ Full documentation is provided in the 68360 User Manual.
 
 ## Peripherals and External Registers
 Peripheral and registers external to the 68360 itself are mapped at locations in the 0x0D0XXXXX address space. Registers within this address space use CS3/.
+
+**Important Notes:**
+Further experimentation has revealed that only the 0x0D08XXXX window is enabled by default. While investigating the PCMCIA controller, and using my own monitor, I was unable to read any of the PCMCIA controller registers located at 0x0D030000, simply resulting in a bus error. Therefore I believe that there is more initialisation work to be done to enable additional windows. TODO
 
 ### WIC Slot
 WAN Interface Cards (WICs) are Cisco proprietary modules that provide various different .. WAN interfaces. These would traditionally have been serial for frame relay, ISDN, DSL, modem, etc.
