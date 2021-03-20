@@ -161,7 +161,234 @@ Flash is located at 0x08000000, and uses CS4/.
 
 The total address space mapped to CS4/ is 32Mbyte, with the Flash card visible in the first half, and some information about the card itself visible from address 0x09000000 and repeating every 4Kbyte.
 
-During boot, the boot ROM makes mention of initialising a PCMCIA controller. I believe this may be contained within one of the Altera CPLDs, but at time of writing have not yet dug into the details of this. TODO
+During boot, the boot ROM makes mention of initialising a PCMCIA controller. I believe this may be contained within one of the Altera CPLDs, and attempting to read from the flash memory range before the controller has been initialised will result in a bus error exception.
+
+Once again it seems that there is some kind of proprietary pinout being used on the flash card. Comparing some signals like chip enables, data lines etc do not produce activity when you would expect to see it. I dont know how important it is to know the pinout, except to be aware that a standard PCMCIA memory card may not work in a Cisco router.
+
+There are 4 byte sized registers associated with the PCMCIA controller, and based on initial experiments I have determined likely functions for some of the bits within:
+
+**Socket Power Control Register 0x0D030000**
+<table>
+    <thead>
+        <tr>
+            <th>Bit 7</th><th></th><th></th><th></th><th></th><th></th><th></th><th>Bit 0</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">R/W-0</td>
+            <td align="center">R-0</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">EN</td>
+            <td align="center">PWR</td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+Bit 3: EN: Power delivery control<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Disabled<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Enabled<br>
+Bit 2: PWR: Power delivery status<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Card is not powered<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Card is powered<br>
+
+**Socket Status Register 0x0D030001**
+<table>
+    <thead>
+        <tr>
+            <th>Bit 7</th><th></th><th></th><th></th><th></th><th></th><th></th><th>Bit 0</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center">R-?</td>
+            <td align="center">R-?</td>
+            <td></td>
+            <td></td>
+            <td align="center">R-1</td>
+            <td align="center">R-1</td>
+            <td></td>
+            <td align="center">R-0</td>
+        </tr>
+        <tr>
+            <td align="center" colspan="2">CD</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">READY</td>
+        </tr>
+    </tbody>
+</table>
+
+Bits 7-6: CD: Flash card presence detection<br>
+&nbsp;&nbsp;&nbsp;&nbsp;00: Card is present<br>
+&nbsp;&nbsp;&nbsp;&nbsp;xx: Card is not present<br>
+Bit 0: READY: Flash card readiness<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Card is not ready<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Card is ready<br>
+
+**Socket Status Change Register 0x0D030002**
+<table>
+    <thead>
+        <tr>
+            <th>Bit 7</th><th></th><th></th><th></th><th></th><th></th><th></th><th>Bit 0</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center">R-?</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td align="center" colspan="2">CD</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+Bit 7: CD: Flash card presence<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: No change<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Change detected<br>
+
+**Socket Access Control Register 0x0D030003**
+<table>
+    <thead>
+        <tr>
+            <th>Bit 7</th><th></th><th></th><th></th><th></th><th></th><th></th><th>Bit 0</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td align="center">R/W-0</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">R/W-1</td>
+            <td align="center">R/W-1</td>
+            <td align="center">R/W-1</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td align="center">RD</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center" colspan="3">WAIT</td>
+        </tr>
+    </tbody>
+</table>
+
+Bit 6: RD: Read access<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Disabled<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Enabled<br>
+Bits 2-0: WAIT: Wait states for access<br>
+&nbsp;&nbsp;&nbsp;&nbsp;000: 4 clocks<br>
+&nbsp;&nbsp;&nbsp;&nbsp;001: 5 clocks<br>
+&nbsp;&nbsp;&nbsp;&nbsp;010: 7 clocks<br>
+&nbsp;&nbsp;&nbsp;&nbsp;011: 9 clocks<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1xx: 10 clocks<br>
+
+Initialisation of the PCMCIA controller can be achieved using the following process:
+
+1. Check if (as a long) the registers of the PCMCIA controller are 0, if they are, skip initialisation
+2. Read the Socket Status Register, AND the value with 0xC0, and if the result is 0 then a flash card is present
+3. Write 0 to the Socket Access Control Register
+4. Write 0x08 to the Socket Power Control Register to enable power to the socket
+5. Write 0xC7 to the Socket Access Control Register
+6. Write 0x47 to the Socket Access Control Register
+7. Wait for the READY bit of the Socket Status Register to be set
+
+Example in C:
+```c
+uint8_t
+is_flash_card_present(void)
+{
+    /* Perhaps a check if the PCMCIA controller exists? */
+    if (*(uint32_t *)(PERIPHERAL_BASE + 0x30000) != 0) {
+        /* Is a PCMCIA card present? */
+        if (SSTRbits.CD == 0) {
+            /* Card detected */
+            return 1;
+        }
+    }
+
+    /* No controller, or card not detected */
+    return 0;
+}
+
+void
+delay_loop(void)
+{
+    uint16_t ctr;
+
+    for (ctr = 1000; ctr > 0; ctr--);
+}
+
+void
+init_pcmcia_controller(void)
+{
+    uint8_t ctr;
+
+    if (is_flash_card_present() != 0) {
+        if (SPCRbits.EN == 0) {
+            /* Card is not yet powered up, initialise controller */
+
+            /* Clear access control register */
+            SACR = 0;
+            delay_loop();
+
+            /* Enable power to socket */
+            SPCRbits.EN = 1;
+            delay_loop();
+
+            /* Configure read access bit and wait states */
+            SACR = 0xC7;
+            delay_loop();
+            SACR = 0x47;
+
+            for (ctr = 100; ctr > 0; ctr--) {
+                /* Loop for a little while waiting for READY bit to be set */
+                if (SSTRbits.READY != 0) {
+                    break;
+                }
+
+                delay_loop();
+            }
+        }
+    }
+}
+```
+
+If the initialisation completes successfully, the card is now readable.
+
+Write access is still a work in progress. Attempting a write to address 0x08000000 produces a bus error due to write protection. Initially I thought that bit 7 of the Socket Access Control Register may have been a write access enable bit, but this error occurrs regardless of the state of that bit. Therefore, I think there may be some kind of command that needs to be issued to the flash card to disable write protection, or there is additional controller initialisation to be performed. TODO
 
 ## Peripherals
 
@@ -240,8 +467,6 @@ The following GPIO pins are known to be used for the noted purposes, based on th
   * PC9 - WIC pin 9
 * PORTE
   * Port E pins are largely used for DRAM memory interface signals (RAS, CAS etc)
-
-Port C pins are notable in that they can supply interrupts when their state changes.
 
 ### DMA
 Most peripherals within the 68360 contain dedicated DMA (SDMA) channels for TX and RX operations, but two other general purpose DMA channels are also provided (yay!).
@@ -385,6 +610,8 @@ Bit 3: SPEED: CPU speed strap<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: 25MHz<br>
 
 <img src="images/system-option-register.png">
+
+The HWREV field is treated as a literal, and does not encode any information.
 
 ### LED Control Register
 Another name that I have come up with, this byte size register enables 5 LEDS to be controlled - even more blinkenlights!

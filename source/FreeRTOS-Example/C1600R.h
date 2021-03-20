@@ -54,6 +54,74 @@ typedef union {
 #define LEDCRbits (*(volatile __LEDCRbits_t *)(PERIPHERAL_BASE + 0x80001))
 
 
+#define SPCR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30000))
+typedef union {
+    struct {
+        uint8_t :4;
+        uint8_t EN:1;
+        uint8_t PWR:1;
+        uint8_t :2;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __SPCRbits_t;
+#define SPCRbits (*(volatile __SPCRbits_t *)(PERIPHERAL_BASE + 0x30000))
+
+
+#define SSTR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30001))
+typedef union {
+    struct {
+        uint8_t CD1:1;
+        uint8_t CD0:1;
+        uint8_t :5;
+        uint8_t READY:1;
+    };
+    struct {
+        uint8_t CD:2;
+        uint8_t :6;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __SSTRbits_t;
+#define SSTRbits (*(volatile __SSTRbits_t *)(PERIPHERAL_BASE + 0x30001))
+
+
+#define SSCR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30002))
+typedef union {
+    struct {
+        uint8_t CD:1;
+        uint8_t :7;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __SSCRbits_t;
+#define SSCRbits (*(volatile __SSCRbits_t *)(PERIPHERAL_BASE + 0x30002))
+
+
+#define SACR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30003))
+typedef union {
+    struct {
+        uint8_t :1;
+        uint8_t RD:1;
+        uint8_t :3;
+        uint8_t WAIT2:1;
+        uint8_t WAIT1:1;
+        uint8_t WAIT0:1;
+    };
+    struct {
+        uint8_t :5;
+        uint8_t WAIT:3;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __SACRbits_t;
+#define SACRbits (*(volatile __SACRbits_t *)(PERIPHERAL_BASE + 0x30003))
+
+
 /* The following registers are all internal to the QUICC */
 #define DPRBASE MODULE_BASE
 #define REGB (DPRBASE + 0x1000)
