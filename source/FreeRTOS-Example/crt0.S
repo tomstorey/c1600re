@@ -17,13 +17,15 @@ _start:
     /* Setup SR for supervisor state, and mask all interrupts */
     move.w  #0x2700, %sr
 
-    /* Init SP to internal DPRAM */
+    /* Init SP to internal DPRAM, set FP terminal value for stack reloc */
     movea.l #(MODULE_BASE + 0x400), %sp
+    movea.l #FRAME_TERM, %fp
 
     /* Configure VBR to start of ROM */
     lea     __rom_base, %a0
     movec   %a0, %vbr
 
+#ifndef __DEBUG__
     /* Source/Destination function code registers to supervisor space */
     moveq   #7, %d0
     movec   %d0, %sfc
@@ -45,6 +47,7 @@ _start:
 
     /* Make sure Breakpoint Control Register (BKCR) is cleared */
     clr.l   (MODULE_BASE + 0x1034)
+#endif
 
 .call_main:
     jsr     main
