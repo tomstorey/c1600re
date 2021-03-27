@@ -56,28 +56,54 @@ init_memory_params(void)
 
     /* Relocate the stack out of the internal DPRAM and into on-board RAM */
     asm volatile(
+        /* Setup some frequently used values */
+        "    move.l  %[old_stack], %%d1     \n\t"
+        "    move.l  %[new_stack], %%d2     \n\t"
+        "    move.l  %[frame_term], %%d3    \n\t"
+
         /* Figure out how many words to copy from old stack to new stack */
-        "    move.l  #0x0ff00400, %%d0      \n\t"
-        "    move.l  %%sp, %%d1             \n\t"
-        "    sub.l   %%d1, %%d0             \n\t"
-        "    move.l  %%d0, %%d1             \n\t" /* D1 = num of bytes used */
-        "    lsr.l   #1, %%d0               \n\t" /* D0 = words to copy */
-        "    movea.l %%sp, %%a5             \n\t"
-        "    adda.l  %%d1, %%a5             \n\t" /* A5 = top of old stack */
-        "    movea.l #%[ram_end], %%sp      \n\t" /* A7 = top of new stack */
+        "    move.l  %%d1, %%d0         \n\t"
+        "    sub.l   %%sp, %%d0         \n\t"
+        "    lsr.l   #1, %%d0           \n\t" /* D0 = words to copy */
+        "    movea.l %%d1, %%a5         \n\t" /* A5 = top of old stack */
+        "    movea.l %%d2, %%sp         \n\t" /* SP = top of new stack */
 
         /* Copy old stack to new stack */
-        "0:  move.w  %%a5@-, %%sp@-         \n\t"
-        "    subq.l  #1, %%d0               \n\t"
-        "    bne     0b                     \n\t"
+        "0:  move.w  %%a5@-, %%sp@-     \n\t"
+        "    subq.l  #1, %%d0           \n\t"
+        "    bne     0b                 \n\t"
 
-        /* Fix up the frame pointer */
-        "    adda.l  %%d1, %%a5             \n\t"
-        "    suba.l  %%fp, %%a5             \n\t" /* A5 is frame size */
-        "    movea.l #%[ram_end], %%fp      \n\t" /* FP = top of new stack */
-        "    suba.l  %%a5, %%fp             \n\t" /* Subtract frame size */
+        /* Fix up frame pointer if not terminal value */
+        "    cmp.l   %%fp, %%d3         \n\t"
+        "    beq     2f                 \n\t"
+
+        "    move.l  %%d1, %%d0         \n\t"
+        "    sub.l   %%fp, %%d0         \n\t" /* D0 = total frame size */
+        "    movea.l %%d2, %%fp         \n\t"
+        "    suba.l  %%d0, %%fp         \n\t" /* FP fixed up */
+
+        /* If value at %fp@ is terminal value, only one frame is linked so
+         * skip fixup */
+        "    cmp.l   %%fp@, %%d3        \n\t"
+        "    beq     2f                 \n\t"
+
+        /* Loop through stack frames and fix up links until terminal value */
+        "    movea.l %%fp, %%a4         \n\t" /* Pointer to next link */
+
+        "1:  move.l  %%d1, %%d0         \n\t"
+        "    sub.l   %%a4@, %%d0        \n\t" /* D0 = offset of link */
+        "    movea.l %%d2, %%a5         \n\t" /* New stack into A5 */
+        "    suba.l  %%d0, %%a5         \n\t" /* A5 = new address of link */
+        "    move.l  %%a5, %%a4@        \n\t" /* Write new link to stack */
+        "    movea.l %%a5, %%a4         \n\t" /* Setup pointer to next link */
+        "    cmp.l   %%a4@, %%d3        \n\t" /* Terminal value reached? */
+        "    bne     1b                 \n\t"
+
+        "2:                             \n\t"
         :
-        :[ram_end]"rm"(__ram_end)
+        :[old_stack]"i"(MODULE_BASE + 0x400), [new_stack]"rm"(&__ram_end),
+         [frame_term]"i"(FRAME_TERM)
+        :"%d0", "%d1", "%d2", "%d3", "%a4", "%a5"
     );
 }
 
