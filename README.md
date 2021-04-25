@@ -26,6 +26,7 @@ Documented here is my effort to reverse engineer enough detail about the Cisco 1
   * [Minimal Startup Code](#minimal-startup-code)
   * [Reset Button Modification](#reset-button-modification)
   * [Overclocking](#overclocking)
+  * [A19 Issue](#a19-issue)
 
 ### Rationale
 This was an extension of my [Cisco 2500 reverse engineering](https://github.com/tomstorey/c2500re) effort, something which I took up while waiting for some PCBs to arrive to test out an idea for providing IO via one of the Flash sockets.
@@ -85,6 +86,9 @@ Due to the ROMs being 8Mbit in size, smaller ROMs will once again encounter an i
 <img src="images/1600-rom-modded.jpg">
 
 The jumper can then be added to run the factory boot ROMs, or removed for 1, 2 or 4Mbit ROMs.
+
+**Important Notes:**
+A side effect of making this modification is that a pin on each of the CPLDs will be affected, and so further modifications are required to restore the original address signal. Without this further modification, the address ranges of the PCMCIA controller and WIC slot in particular will be inaccessible. [More info](#a19-issue).
 
 As with the 2500, it should be possible to utilise the full capacity of 4Mbit ROMs by arranging the contents appropriately, taking into account the inverted nature of A19 (assuming base address of 0):
 
@@ -155,15 +159,15 @@ A 72 pin SIMM socket supports a maximum of 16Mbyte of DRAM, allowing for a total
 The PEPAR and GMR registers must be appropriately initialised before DRAM can be utiliised.
 
 ### Flash
-Flash storage is via a PCMCIA socket, and the routers datasheet claims a maximum of 16Mbyte of storage. 
+Flash storage is via a PCMCIA form factor linear flash module, and the routers datasheet claims a maximum of 16Mbyte of storage. 
 
 Flash is located at 0x08000000, and uses CS4/.
 
 The total address space mapped to CS4/ is 32Mbyte, with the Flash card visible in the first half, and some information about the card itself visible from address 0x09000000 and repeating every 4Kbyte.
 
-During boot, the boot ROM makes mention of initialising a PCMCIA controller. I believe this may be contained within one of the Altera CPLDs, and attempting to read from the flash memory range before the controller has been initialised will result in a bus error exception.
+During boot, the boot ROM makes mention of initialising a "PCMCIA controller". This is contained within one of the Altera CPLDs, and attempting to read from the flash memory range before the controller has been initialised will result in a bus error exception.
 
-Once again it seems that there is some kind of proprietary pinout being used on the flash card. Comparing some signals like chip enables, data lines etc do not produce activity when you would expect to see it. I dont know how important it is to know the pinout, except to be aware that a standard PCMCIA memory card may not work in a Cisco router.
+Once again it seems that there may be some kind of proprietary pinout being used on the flash card. Comparing some signals like chip enables, data lines etc do not produce activity when you would expect to see it. I dont know how important it is to know the pinout, except to be aware that a standard PCMCIA memory card may not work in a Cisco router.
 
 There are 4 byte sized registers associated with the PCMCIA controller, and based on initial experiments I have determined likely functions for some of the bits within:
 
@@ -261,7 +265,8 @@ Bit 0: READY: Flash card readiness<br>
             <td></td>
         </tr>
         <tr>
-            <td align="center" colspan="2">CD</td>
+            <td align="center">CD</td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -477,11 +482,11 @@ The result of this is that your software will likely become more heavily interru
 
 Full documentation is provided in the 68360 User Manual.
 
-## Peripherals and External Registers
-Peripheral and registers external to the 68360 itself are mapped at locations in the 0x0D0XXXXX address space. Registers within this address space use CS3/.
+## External Peripherals and Registers
+Peripherals and registers external to the 68360 itself are mapped at locations in the 0x0D0XXXXX address space. Registers within this address space use CS3/.
 
 **Important Notes:**
-Further experimentation has revealed that only the 0x0D08XXXX window is enabled by default. While investigating the PCMCIA controller, and using my own monitor, I was unable to read any of the PCMCIA controller registers located at 0x0D030000, simply resulting in a bus error. Therefore I believe that there is more initialisation work to be done to enable additional windows. TODO
+A modification is required to the signal which is routed to pin 31 of the ROM sockets, and this has side effects for other parts of the router. Refer to the [Boot ROMs](#boot-roms) section for more details.
 
 ### WIC Slot
 WAN Interface Cards (WICs) are Cisco proprietary modules that provide various different .. WAN interfaces. These would traditionally have been serial for frame relay, ISDN, DSL, modem, etc.
@@ -569,6 +574,8 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
 
 ### On-board ISDN Controller
 My router model, a 1603R, has a built-in ISDN controller. I dont plan to do anything with this so I wont document much about it, but this controller is accessible at address 0x0D060000 as part of the address space covered by CS3/.
+
+The ISDN controller does contain a watchdog function which can be used to generate a reset, however, the reset pin is routed to one of the CPLDs, and does not appear to have any ability to cause a CPU reset.
 
 ### System Option Register
 This is a name I came up with based on initial discovery, it is a byte sized read-only register which seems to describe some properties about the router platform.
@@ -713,7 +720,7 @@ Across these two examples you will find code to:
 * Initialise the SMC1 to provide UART for serial communications
 * Configure some interrupts
 
-The serial bootloader in particular is an example of using SDAM channels and buffer descriptors to send and receive data over the UART.
+The serial bootloader in particular is an example of using SDMA channels and buffer descriptors to send and receive data over the UART.
 
 ## Reset Button Modification
 The hardware as supplied does not include a reset button, but one can be added very easily.
@@ -726,3 +733,23 @@ The mod will bridge the RESETH/ pin to ground when the button is pressed, causin
 The CPU features a PLL which takes input from a (as manufactured) 4MHz crystal. This is then divided by 128 (as determined by the MODCK1-0 settings), and then multiplied up to the target operating frequency via the MF field of the PLLCR register.
 
 I did some quick testing and it seems like you can quite easily push the CPU (33MHz rated part in my case) to at least 50MHz. I didnt run it for more than a minute or so, so long term stability is unknown, and depending on just how far you take it, maybe some additional cooling may be required, and wait states for memories may need to be adjusted as well.
+
+## A19 Issue
+As explained in the [Boot ROMs](#boot-roms) section, pin 31 of the boot ROM sockets is driven by the A19 signal from the CPU. On factory boot ROMs which are 8Mbit in size, this corresponds with the A18 signal. But on smaller ROMs, such as 1, 2 and 4Mbit, pin 31 is the WE/ signal. Therefore a mod is required to be able to pull this signal high so that smaller ROMs can be used without inadvertently asserting the WE/ signal.
+
+Details of the required mod are included in the Boot ROMs section.
+
+A side effect of this mod is that, when the mod is in use, the same signal that is fed into the two CPLDs will also be pulled high. This will cause address decoding for the WIC slot and PCMCIA controller registers in particular to fail, resulting in bus errors because a DSACK is never generated in response to an access.
+
+Therefore a further modification is required to restore the signal fed to the CPLDs to the original address signal. This requires cutting two short traces by each pin, disconnecting it from a via, and soldering some mod wires.
+
+The following two images show which traces need to be disconnected from their vias, and how to route the mod wires.
+
+<img src="images/a19-cut-traces.jpg">
+<img src="images/a19-cpld-mod-wires.jpg">
+
+Unfortunately, unless you have good soldering skills yourself, or access to a friend or colleague who does, the number of fiddly mods required to be made to this router will put it out of reach of many hackers, or a more creative solution needs to be found to deal with the ROM sockets and avoid all of this.
+
+The following image is a representation of the original circuitry, and the circuitry after the mods are completed.
+
+<img src="images/mod-summary.png">
