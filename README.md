@@ -505,8 +505,6 @@ The following signals were identified, and alone are likely to be sufficient for
 * EEPROM CS, DI, DO, SK (SPI interface to a small inventory EEPROM)
 * Power supply pins - 2x +5V, 1x -5V, 1x +12V, 1x -12V, numerous GND
 
-Try as I might, at the time of writing I had not yet been able to positively identify any kind of "official" interrupt or reset pin on the WIC slot. That said, several pins of the WIC slot are routed to various PORTA, PORTB and PORTC pins on the CPU, so it is very likely that you could take your pick of these to provide this functionality as required. Some of these pins are associated with further Serial Communication Controllers in the 68360, enabling access to higher speed serial interfaces supporting various protocols.
-
 Pinout for the WIC slot identified so far is as follows. Orientation of the WIC connector should be view from the rear of the card looking into the connector, with the notches on the sides of the connector arranged as `]` on the left and `L` on the right. In this orientation, pin 1 is top right, pin 34 is top left, pin 35 is bottom right and pin 68 bottom left.
 
 **WIC Socket Pinout**
@@ -564,7 +562,7 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
             <td>15</td><td>DS/</td><td>32</td><td></td><td>49</td><td>EEPROM CS</td><td>66</td><td>GND</td>
         </tr>
         <tr>
-            <td>16</td><td>CPU PB4</td><td>33</td><td>GND</td><td>50</td><td>CPLD 01 pin 49</td><td>67</td><td>CPLD 01 pin 71</td>
+            <td>16</td><td>CPU PB4</td><td>33</td><td>GND</td><td>50</td><td>INT/</td><td>67</td><td>RST/</td>
         </tr>
         <tr>
             <td>17</td><td>-5V</td><td>34</td><td>+12V</td><td>51</td><td>GND</td><td>68</td><td>+5V</td>
