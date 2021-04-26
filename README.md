@@ -570,6 +570,10 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
     </tbody>
 </table>
 
+The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and will generate an interrupt at IRQ4.
+
+The RST/ pin is connected to pin 71 of the EPM7064 CPLD, however, the exact mechanism to generate a reset has not yet been discovered. TODO
+
 ### On-board ISDN Controller
 My router model, a 1603R, has a built-in ISDN controller. I dont plan to do anything with this so I wont document much about it, but this controller is accessible at address 0x0D060000 as part of the address space covered by CS3/.
 
