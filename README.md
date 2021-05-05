@@ -731,7 +731,7 @@ This register is write-only and its value cannot be read back.
             <td></td>
             <td></td>
             <td></td>
-            <td align="center">W-0</td>
+            <td align="center">w-0</td>
         </tr>
         <tr>
             <td></td>
