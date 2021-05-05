@@ -6,13 +6,28 @@
  * other CPU peripheral register addresses in this header file. */
 #define MODULE_BASE 0x0FF00000
 
-#ifndef __ASSEMBLER__
-#include <stdint.h>
-
 /* PERIPHERAL_BASE is where BR3/OR3 are configured to place the peripheral
  * memory range. */
 #define PERIPHERAL_BASE 0x0D000000
 
+/* This value is used as the initial frame pointer value, and is used as a
+ * terminal value for the stack relocation code */
+#define FRAME_TERM 0xDEADBEEF
+
+/* #define __DEBUG__ */
+
+/* The following registers are all internal to the QUICC */
+#define DPRBASE MODULE_BASE
+#define REGB (DPRBASE + 0x1000)
+#define SPIBASE (DPRBASE + 0xD00)
+#define TIMERBASE (DPRBASE + 0xDB0)
+#define IDMA1BASE (DPRBASE + 0xE70)
+#define SMC1BASE (DPRBASE + 0xE80)
+#define IDMA2BASE (DPRBASE + 0xF70)
+#define SMC2BASE (DPRBASE + 0xF80)
+
+#ifndef __ASSEMBLER__
+#include <stdint.h>
 /* Don't modify below this line unless you know what you're doing */
 
 /* The following registers are external to the QUICC */
@@ -54,6 +69,20 @@ typedef union {
 #define LEDCRbits (*(volatile __LEDCRbits_t *)(PERIPHERAL_BASE + 0x80001))
 
 
+#define PCTL (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x8000F))
+typedef union {
+    struct {
+        uint8_t :7;
+        uint8_t RST:1;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __PCTLbits_t;
+#define PCTLbits (*(volatile __PCTLbits_t *)(PERIPHERAL_BASE + 0x80001))
+
+
+/* This register is a work in progress */
 #define SPCR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30000))
 typedef union {
     struct {
@@ -69,6 +98,7 @@ typedef union {
 #define SPCRbits (*(volatile __SPCRbits_t *)(PERIPHERAL_BASE + 0x30000))
 
 
+/* This register is a work in progress */
 #define SSTR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30001))
 typedef union {
     struct {
@@ -88,6 +118,7 @@ typedef union {
 #define SSTRbits (*(volatile __SSTRbits_t *)(PERIPHERAL_BASE + 0x30001))
 
 
+/* This register is a work in progress */
 #define SSCR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30002))
 typedef union {
     struct {
@@ -101,6 +132,7 @@ typedef union {
 #define SSCRbits (*(volatile __SSCRbits_t *)(PERIPHERAL_BASE + 0x30002))
 
 
+/* This register is a work in progress */
 #define SACR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30003))
 typedef union {
     struct {
@@ -120,17 +152,6 @@ typedef union {
     };
 } __SACRbits_t;
 #define SACRbits (*(volatile __SACRbits_t *)(PERIPHERAL_BASE + 0x30003))
-
-
-/* The following registers are all internal to the QUICC */
-#define DPRBASE MODULE_BASE
-#define REGB (DPRBASE + 0x1000)
-#define SPIBASE (DPRBASE + 0xD00)
-#define TIMERBASE (DPRBASE + 0xDB0)
-#define IDMA1BASE (DPRBASE + 0xE70)
-#define SMC1BASE (DPRBASE + 0xE80)
-#define IDMA2BASE (DPRBASE + 0xF70)
-#define SMC2BASE (DPRBASE + 0xF80)
 
 /* Parameter RAM */
 typedef union {
@@ -2241,34 +2262,158 @@ typedef union {
 } __SICRbits_t;
 #define SICRbits (*(volatile __SICRbits_t *)(REGB + 0x6EC))
 
+#else /* __ASSEMBLER__ */
 
-#define _SYSOPT_HWREV_POS 0x00000004
-#define _SYSOPT_HWREV_MASK 0x000000F0
-#define _SYSOPT_HWREV_LEN 0x00000004
+#define SYSOPT (PERIPHERAL_BASE + 0x80000)
+#define LEDCR (PERIPHERAL_BASE + 0x80001)
+#define PCTL (PERIPHERAL_BASE + 0x8000F)
 
-#define _SYSOPT_SPEED_POS 0x00000003
-#define _SYSOPT_SPEED_MASK 0x00000008
-#define _SYSOPT_SPEED_LEN 0x00000001
-
-#define _LEDCR_OK_POS 0x00000007
-#define _LEDCR_OK_MASK 0x00000080
-#define _LEDCR_OK_LEN 0x00000001
-
-#define _LEDCR_B1_POS 0x00000006
-#define _LEDCR_B1_MASK 0x00000040
-#define _LEDCR_B1_LEN 0x00000001
-
-#define _LEDCR_B2_POS 0x00000005
-#define _LEDCR_B2_MASK 0x00000020
-#define _LEDCR_B2_LEN 0x00000001
-
-#define _LEDCR_CD_POS 0x00000004
-#define _LEDCR_CD_MASK 0x00000010
-#define _LEDCR_CD_LEN 0x00000001
-
-#define _LEDCR_ACT_POS 0x00000003
-#define _LEDCR_ACT_MASK 0x00000008
-#define _LEDCR_ACT_LEN 0x00000001
+#define MCR (REGB + 0)
+#define AVR (REGB + 0x8)
+#define RSR (REGB + 0x9)
+#define CLKOCR (REGB + 0xC)
+#define PLLCR (REGB + 0x10)
+#define CDVCR (REGB + 0x14)
+#define PEPAR (REGB + 0x16)
+#define SYPCR (REGB + 0x22)
+#define SWIV (REGB + 0x23)
+#define PICR (REGB + 0x26)
+#define PITR (REGB + 0x2A)
+#define SWSR (REGB + 0x2F)
+#define BKAR (REGB + 0x30)
+#define BKCR (REGB + 0x34)
+#define GMR (REGB + 0x40)
+#define MSTAT (REGB + 0x44)
+#define BR0 (REGB + 0x50)
+#define OR0 (REGB + 0x54)
+#define BR1 (REGB + 0x60)
+#define OR1 (REGB + 0x64)
+#define BR2 (REGB + 0x70)
+#define OR2 (REGB + 0x74)
+#define BR3 (REGB + 0x80)
+#define OR3 (REGB + 0x84)
+#define BR4 (REGB + 0x90)
+#define OR4 (REGB + 0x94)
+#define BR5 (REGB + 0xA0)
+#define OR5 (REGB + 0xA4)
+#define BR6 (REGB + 0xB0)
+#define OR6 (REGB + 0xB4)
+#define BR7 (REGB + 0xC0)
+#define OR7 (REGB + 0xC4)
+#define ICCR (REGB + 0x500)
+#define CMR1 (REGB + 0x504)
+#define SAPR1 (REGB + 0x508)
+#define DAPR1 (REGB + 0x50C)
+#define BCR1 (REGB + 0x510)
+#define FCR1 (REGB + 0x514)
+#define CMAR1 (REGB + 0x516)
+#define CSR1 (REGB + 0x518)
+#define SDSR (REGB + 0x51C)
+#define SDCR (REGB + 0x51E)
+#define SDAR (REGB + 0x520)
+#define CMR2 (REGB + 0x526)
+#define SAPR2 (REGB + 0x528)
+#define DAPR2 (REGB + 0x52C)
+#define BCR2 (REGB + 0x530)
+#define FCR2 (REGB + 0x534)
+#define CMAR2 (REGB + 0x536)
+#define CSR2 (REGB + 0x538)
+#define CICR (REGB + 0x540)
+#define CIPR (REGB + 0x544)
+#define CIMR (REGB + 0x548)
+#define CISR (REGB + 0x54C)
+#define PADIR (REGB + 0x550)
+#define PAPAR (REGB + 0x552)
+#define PAODR (REGB + 0x554)
+#define PADAT (REGB + 0x556)
+#define PCDIR (REGB + 0x560)
+#define PCPAR (REGB + 0x562)
+#define PCSO (REGB + 0x564)
+#define PCDAT (REGB + 0x566)
+#define PCINT (REGB + 0x568)
+#define TGCR (REGB + 0x580)
+#define TMR1 (REGB + 0x590)
+#define TMR2 (REGB + 0x592)
+#define TRR1 (REGB + 0x594)
+#define TRR2 (REGB + 0x596)
+#define TCR1 (REGB + 0x598)
+#define TCR2 (REGB + 0x59A)
+#define TCN1 (REGB + 0x59C)
+#define TCN2 (REGB + 0x59E)
+#define TMR3 (REGB + 0x5A0)
+#define TMR4 (REGB + 0x5A2)
+#define TRR3 (REGB + 0x5A4)
+#define TRR4 (REGB + 0x5A6)
+#define TCR3 (REGB + 0x5A8)
+#define TCR4 (REGB + 0x5AA)
+#define TCN3 (REGB + 0x5AC)
+#define TCN4 (REGB + 0x5AE)
+#define TER1 (REGB + 0x5B0)
+#define TER2 (REGB + 0x5B2)
+#define TER3 (REGB + 0x5B4)
+#define TER4 (REGB + 0x5B6)
+#define CR (REGB + 0x5C0)
+#define RCCR (REGB + 0x5C4)
+#define RTER (REGB + 0x5D6)
+#define RTMR (REGB + 0x5DA)
+#define BRGC1 (REGB + 0x5F0)
+#define BRGC2 (REGB + 0x5F4)
+#define BRGC3 (REGB + 0x5F8)
+#define BRGC4 (REGB + 0x5FC)
+#define GSMR1L (REGB + 0x600)
+#define GSMR1H (REGB + 0x604)
+#define PSMR1 (REGB + 0x608)
+#define TODR1 (REGB + 0x60C)
+#define DSR1 (REGB + 0x60E)
+#define SCCE1 (REGB + 0x610)
+#define SCCM1 (REGB + 0x614)
+#define SCCS1 (REGB + 0x617)
+#define GSMR2L (REGB + 0x620)
+#define GSMR2H (REGB + 0x624)
+#define PSMR2 (REGB + 0x628)
+#define TODR2 (REGB + 0x62C)
+#define DSR2 (REGB + 0x62E)
+#define SCCE2 (REGB + 0x630)
+#define SCCM2 (REGB + 0x634)
+#define SCCS2 (REGB + 0x637)
+#define GSMR3L (REGB + 0x640)
+#define GSMR3H (REGB + 0x644)
+#define PSMR3 (REGB + 0x648)
+#define TODR3 (REGB + 0x64C)
+#define DSR3 (REGB + 0x64E)
+#define SCCE3 (REGB + 0x650)
+#define SCCM3 (REGB + 0x654)
+#define SCCS3 (REGB + 0x657)
+#define GSMR4L (REGB + 0x660)
+#define GSMR4H (REGB + 0x664)
+#define PSMR4 (REGB + 0x668)
+#define TODR4 (REGB + 0x66C)
+#define DSR4 (REGB + 0x66E)
+#define SCCE4 (REGB + 0x670)
+#define SCCM4 (REGB + 0x674)
+#define SCCS4 (REGB + 0x677)
+#define SMCMR1 (REGB + 0x682)
+#define SMCE1 (REGB + 0x686)
+#define SMCM1 (REGB + 68A)
+#define SMCMR2 (REGB + 0x692)
+#define SMCE2 (REGB + 0x696)
+#define SMCM2 (REGB + 69A)
+#define SPMODE (REGB + 0x6A0)
+#define SPIE (REGB + 0x6A6)
+#define SPIM (REGB + 0x6AA)
+#define SPCOM (REGB + 0x6AD)
+#define PIPC (REGB + 0x6B2)
+#define PTPR (REGB + 0x6B6)
+#define PBDIR (REGB + 0x6B8)
+#define PBPAR (REGB + 0x6BC)
+#define PBODR (REGB + 0x6C2)
+#define PBDAT (REGB + 0x6C4)
+#define SIMODE (REGB + 0x6E0)
+#define SIGMR (REGB + 0x6E4)
+#define SISTR (REGB + 0x6E6)
+#define SICMR (REGB + 0x6E7)
+#define SICR (REGB + 0x6EC)
+#define SIRP (REGB + 0x6F2)
 
 #endif /* __ASSEMBLER__ */
 

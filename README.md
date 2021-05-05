@@ -22,6 +22,7 @@ Documented here is my effort to reverse engineer enough detail about the Cisco 1
     + [On-board ISDN Controller](#on-board-isdn-controller)
     + [System Option Register](#system-option-register)
     + [LED Control Register](#led-control-register)
+    + [Peripheral Control Register](#peripheral-control-register)
 - [Other](#other)
   * [Minimal Startup Code](#minimal-startup-code)
   * [Reset Button Modification](#reset-button-modification)
@@ -572,7 +573,7 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
 
 The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and will generate an interrupt at IRQ4.
 
-The RST/ pin is connected to pin 71 of the EPM7064 CPLD, however, the exact mechanism to generate a reset has not yet been discovered. TODO
+The RST/ pin is connected to pin 71 of the EPM7064 CPLD, and can be controlled via the [Peripheral Control Register](#peripheral-control-register).
 
 ### On-board ISDN Controller
 My router model, a 1603R, has a built-in ISDN controller. I dont plan to do anything with this so I wont document much about it, but this controller is accessible at address 0x0D060000 as part of the address space covered by CS3/.
@@ -706,6 +707,48 @@ Due to there being a variety of different 1600R models, 4 of the LEDs are effect
         </tr>
     </tbody>
 </table>
+
+### Peripheral Control Register
+This is a name I have chosen because it seems to have some bearing on the peripherals that are external to the 68360. In particular it allows the reset signal of the onboard peripherals (in my case, the on-board ISDN controller) and WIC slot to be asserted and negated.
+
+You may find this register useful if you are utilising the WIC slot and need to reset any peripherals that are located on it.
+
+This register is write-only and its value cannot be read back.
+
+**Peripheral Control Register 0x0D08000F**
+<table>
+    <thead>
+        <tr>
+            <th>Bit 7</th><th></th><th></th><th></th><th></th><th></th><th></th><th>Bit 0</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">W-0</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">RST</td>
+        </tr>
+    </tbody>
+</table>
+
+Bit 0: RST: Peripheral reset signal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Asserted (logic low)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Negated (logic high)<br>
 
 # Other
 

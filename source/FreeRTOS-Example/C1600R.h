@@ -69,6 +69,20 @@ typedef union {
 #define LEDCRbits (*(volatile __LEDCRbits_t *)(PERIPHERAL_BASE + 0x80001))
 
 
+#define PCTL (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x8000F))
+typedef union {
+    struct {
+        uint8_t :7;
+        uint8_t RST:1;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __PCTLbits_t;
+#define PCTLbits (*(volatile __PCTLbits_t *)(PERIPHERAL_BASE + 0x80001))
+
+
+/* This register is a work in progress */
 #define SPCR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30000))
 typedef union {
     struct {
@@ -84,6 +98,7 @@ typedef union {
 #define SPCRbits (*(volatile __SPCRbits_t *)(PERIPHERAL_BASE + 0x30000))
 
 
+/* This register is a work in progress */
 #define SSTR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30001))
 typedef union {
     struct {
@@ -103,6 +118,7 @@ typedef union {
 #define SSTRbits (*(volatile __SSTRbits_t *)(PERIPHERAL_BASE + 0x30001))
 
 
+/* This register is a work in progress */
 #define SSCR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30002))
 typedef union {
     struct {
@@ -116,6 +132,7 @@ typedef union {
 #define SSCRbits (*(volatile __SSCRbits_t *)(PERIPHERAL_BASE + 0x30002))
 
 
+/* This register is a work in progress */
 #define SACR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30003))
 typedef union {
     struct {
@@ -2246,6 +2263,10 @@ typedef union {
 #define SICRbits (*(volatile __SICRbits_t *)(REGB + 0x6EC))
 
 #else /* __ASSEMBLER__ */
+
+#define SYSOPT (PERIPHERAL_BASE + 0x80000)
+#define LEDCR (PERIPHERAL_BASE + 0x80001)
+#define PCTL (PERIPHERAL_BASE + 0x8000F)
 
 #define MCR (REGB + 0)
 #define AVR (REGB + 0x8)
