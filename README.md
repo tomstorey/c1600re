@@ -571,7 +571,7 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
     </tbody>
 </table>
 
-The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and will generate an interrupt at IRQ4.
+The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and will generate an interrupt at IRQ4. Or does it....? Cannot seem to get interrupts firing from the WIC slot, maybe a register needs to be poked. TODO
 
 The RST/ pin is connected to pin 71 of the EPM7064 CPLD, and can be controlled via the [Peripheral Control Register](#peripheral-control-register).
 
