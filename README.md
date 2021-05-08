@@ -760,6 +760,33 @@ Bit 0: WIC: WIC slot interrupts<br>
 
 A second register related to the Interrupt Control Register is located at address 0x0D080005 and needs to be written (any value seems to do the trick) to clear any pended interrupts.
 
+Example of enabling WIC slot interrupts and clearing them in C:
+```c
+void
+main(void)
+{
+    INTCON = 0xFE;          /* Clear the WIC mask bit */
+    INTCLR = 0;             /* Write anything to clear pending ints */
+
+    /* I observed some interrupt glitches during the process of enabling them,
+     * so best to unmask them last to prevent any inadvertent interrupts from
+     * firing. */
+    asm volatile ("andi.w #0xF8FF, %sr");
+    
+    /* Rest of your code */
+}
+
+void __attribute__((interrupt))
+IRQ4(void)
+{
+    INTCLR = 0;             /* Write anything to clear pending ints */
+
+    /* ISR code */
+}
+```
+
+Unknown at this stage is anything along the lines of an interrupt source register which allows you to determine the source of an interrupt. TODO
+
 ### Peripheral Control Register
 This is a name I have chosen because it seems to have some bearing on the peripherals that are external to the 68360. In particular it allows the reset signal of the onboard peripherals (in my case, the on-board ISDN controller) and WIC slot to be asserted and negated.
 
