@@ -22,6 +22,7 @@ Documented here is my effort to reverse engineer enough detail about the Cisco 1
     + [On-board ISDN Controller](#on-board-isdn-controller)
     + [System Option Register](#system-option-register)
     + [LED Control Register](#led-control-register)
+    + [Interrupt Control Register](#interrupt-control-register)
     + [Peripheral Control Register](#peripheral-control-register)
 - [Other](#other)
   * [Minimal Startup Code](#minimal-startup-code)
@@ -571,14 +572,16 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
     </tbody>
 </table>
 
-The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and will generate an interrupt at IRQ4. Or does it....? Cannot seem to get interrupts firing from the WIC slot, maybe a register needs to be poked. TODO
-
 The RST/ pin is connected to pin 71 of the EPM7064 CPLD, and can be controlled via the [Peripheral Control Register](#peripheral-control-register).
+
+The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and generates interrupts at IRQ4. See [Interrupt Control Register](#interrupt-control-register) for details of how to enable interrupts for external peripherals.
 
 ### On-board ISDN Controller
 My router model, a 1603R, has a built-in ISDN controller. I dont plan to do anything with this so I wont document much about it, but this controller is accessible at address 0x0D060000 as part of the address space covered by CS3/.
 
 The ISDN controller does contain a watchdog function which can be used to generate a reset, however, the reset pin is routed to one of the CPLDs, and does not appear to have any ability to cause a CPU reset.
+
+The on-board ISDN controller will generate interrupts at IRQ4, but there doesnt really seem to be much you can do with it unless you really want to play around with ISDN. See [Interrupt Control Register](#interrupt-control-register) for details of how to enable interrupts for external peripherals.
 
 ### System Option Register
 This is a name I came up with based on initial discovery, it is a byte sized read-only register which seems to describe some properties about the router platform.
@@ -707,6 +710,55 @@ Due to there being a variety of different 1600R models, 4 of the LEDs are effect
         </tr>
     </tbody>
 </table>
+
+### Interrupt Control Register
+This register is so named because it appears to control which interrupts for external peripherals are enabled or disabled, controlling whether they are propagated to the CPU.
+
+My router has an on-board ISDN controller, and along with the WIC slot, both of these peripherals will generate an interrupt at IRQ4 if enabled.
+
+Two bits were identified that individually control interrupt propagation for the ISDN controller and WIC, allowing which ever interrupts are required to be enabled. The register itself forms a mask which enables or disables these interrupts.
+
+This register is write-only and its value cannot be read back.
+
+**Interrupt Control Register 0x0D080004**
+<table>
+    <thead>
+        <tr>
+            <th>Bit 7</th><th></th><th></th><th></th><th></th><th></th><th></th><th>Bit 0</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">w-1</td>
+            <td></td>
+            <td align="center">w-1</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">ONBOARD</td>
+            <td></td>
+            <td align="center">WIC</td>
+        </tr>
+    </tbody>
+</table>
+
+Bit 2: ONBOARD: On-board controller interrupts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Enabled<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Disabled<br>
+Bit 0: WIC: WIC slot interrupts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Enabled<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Disabled<br>
+
+A second register related to the Interrupt Control Register is located at address 0x0D080005 and needs to be written (any value seems to do the trick) to clear any pended interrupts.
 
 ### Peripheral Control Register
 This is a name I have chosen because it seems to have some bearing on the peripherals that are external to the 68360. In particular it allows the reset signal of the onboard peripherals (in my case, the on-board ISDN controller) and WIC slot to be asserted and negated.
