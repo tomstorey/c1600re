@@ -22,7 +22,7 @@ Documented here is my effort to reverse engineer enough detail about the Cisco 1
     + [On-board ISDN Controller](#on-board-isdn-controller)
     + [System Option Register](#system-option-register)
     + [LED Control Register](#led-control-register)
-    + [Interrupt Control Register](#interrupt-control-register)
+    + [Interrupt Control Registers](#interrupt-control-registers)
     + [Peripheral Control Register](#peripheral-control-register)
 - [Other](#other)
   * [Minimal Startup Code](#minimal-startup-code)
@@ -574,14 +574,14 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
 
 The RST/ pin is connected to pin 71 of the EPM7064 CPLD, and can be controlled via the [Peripheral Control Register](#peripheral-control-register).
 
-The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and generates interrupts at IRQ4. See [Interrupt Control Register](#interrupt-control-register) for details of how to enable interrupts for external peripherals.
+The INT/ pin is connected to pin 49 of the EPM7064 CPLD, and generates interrupts at IRQ4. See [Interrupt Control Registers](#interrupt-control-registers) for details of how to enable interrupts for external peripherals.
 
 ### On-board ISDN Controller
 My router model, a 1603R, has a built-in ISDN controller. I dont plan to do anything with this so I wont document much about it, but this controller is accessible at address 0x0D060000 as part of the address space covered by CS3/.
 
 The ISDN controller does contain a watchdog function which can be used to generate a reset, however, the reset pin is routed to one of the CPLDs, and does not appear to have any ability to cause a CPU reset.
 
-The on-board ISDN controller will generate interrupts at IRQ4, but there doesnt really seem to be much you can do with it unless you really want to play around with ISDN. See [Interrupt Control Register](#interrupt-control-register) for details of how to enable interrupts for external peripherals.
+The on-board ISDN controller will generate interrupts at IRQ4, but there doesnt really seem to be much you can do with it unless you really want to play around with ISDN. See [Interrupt Control Registers](#interrupt-control-registers) for details of how to enable interrupts for external peripherals.
 
 ### System Option Register
 This is a name I came up with based on initial discovery, it is a byte sized read-only register which seems to describe some properties about the router platform.
@@ -711,14 +711,12 @@ Due to there being a variety of different 1600R models, 4 of the LEDs are effect
     </tbody>
 </table>
 
-### Interrupt Control Register
-This register is so named because it appears to control which interrupts for external peripherals are enabled or disabled, controlling whether they are propagated to the CPU.
+### Interrupt Control Registers
+There are two registers which allow interrupts from external sources to the CPU to be propagated to the CPU. Two external interrupt sources have been identified, one from the WIC slot and one from (in my case) the on-board ISDN controller.
 
-My router has an on-board ISDN controller, and along with the WIC slot, both of these peripherals will generate an interrupt at IRQ4 if enabled.
+Both of these peripherals will cause an interrupt at IRQ4.
 
-Two bits were identified that individually control interrupt propagation for the ISDN controller and WIC, allowing which ever interrupts are required to be enabled. The register itself forms a mask which enables or disables these interrupts.
-
-This register is write-only and its value cannot be read back.
+The first register provides a means to enable or disable interrupts from these two sources, and is a write-only register. It looks to operate somewhat like a mask, with a high bit presumably preventing external active low signals from being recognised.
 
 **Interrupt Control Register 0x0D080004**
 <table>
@@ -758,15 +756,53 @@ Bit 0: WIC: WIC slot interrupts<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: Enabled<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: Disabled<br>
 
-A second register related to the Interrupt Control Register is located at address 0x0D080005 and needs to be written (any value seems to do the trick) to clear any pended interrupts.
+A second register allows you to determine the source of the interrupt that has just occurred
 
-Example of enabling WIC slot interrupts and clearing them in C:
+**Interrupt Source Register 0x0D080005**
+<table>
+    <thead>
+        <tr>
+            <th>Bit 7</th><th></th><th></th><th></th><th></th><th></th><th></th><th>Bit 0</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">R-?</td>
+            <td></td>
+            <td align="center">R-?</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td align="center">ONBOARD</td>
+            <td></td>
+            <td align="center">WIC</td>
+        </tr>
+    </tbody>
+</table>
+
+Bit 2: ONBOARD: On-board controller<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: No interrupt<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Interrupt<br>
+Bit 0: WIC: WIC slot<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: No interrupt<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Interrupt<br>
+
+The following example in C shows how to enable interrupts, and how to determine the source and handle the interrupt in an ISR.
 ```c
 void
 main(void)
 {
-    INTCON = 0xFE;          /* Clear the WIC mask bit */
-    INTCLR = 0;             /* Write anything to clear pending ints */
+    INTCON = 0xFE;          /* Enable interrupts from the WIC slot */
+    INTSRC = 0;             /* Write anything to clear pending ints */
 
     /* I observed some interrupt glitches during the process of enabling them,
      * so best to unmask them last to prevent any inadvertent interrupts from
@@ -779,13 +815,17 @@ main(void)
 void __attribute__((interrupt))
 IRQ4(void)
 {
-    INTCLR = 0;             /* Write anything to clear pending ints */
+    if (INTSRCbits.WIC) {
+        /* WIC interrupt code */
+    }
 
-    /* ISR code */
+    if (INTSRCbits.ONBOARD) {
+        /* On-board controller interrupt code */
+    }
+
+    INTSRC = 0;             /* Write anything to clear pending ints */
 }
 ```
-
-Unknown at this stage is anything along the lines of an interrupt source register which allows you to determine the source of an interrupt. TODO
 
 ### Peripheral Control Register
 This is a name I have chosen because it seems to have some bearing on the peripherals that are external to the 68360. In particular it allows the reset signal of the onboard peripherals (in my case, the on-board ISDN controller) and WIC slot to be asserted and negated.

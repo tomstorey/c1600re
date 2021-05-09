@@ -14,7 +14,7 @@
  * terminal value for the stack relocation code */
 #define FRAME_TERM 0xDEADBEEF
 
-/* #define __DEBUG__ */
+#define __DEBUG__
 
 /* The following registers are all internal to the QUICC */
 #define DPRBASE MODULE_BASE
@@ -67,6 +67,24 @@ typedef union {
     };
 } __LEDCRbits_t;
 #define LEDCRbits (*(volatile __LEDCRbits_t *)(PERIPHERAL_BASE + 0x80001))
+
+
+#define INTCON (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x80004))
+
+
+#define INTSRC (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x80005))
+typedef union {
+    struct {
+        uint8_t :5;
+        uint8_t ONBOARD:1;
+        uint8_t :1;
+        uint8_t WIC:1;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __INTSRCbits_t;
+#define INTSRCbits (*(volatile __INTSRCbits_t *)(PERIPHERAL_BASE + 0x80005))
 
 
 #define PCTL (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x8000F))
