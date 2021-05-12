@@ -927,3 +927,12 @@ To use this breakout board you will need to find a WIC card that you dont mind s
 The board was designed using EAGLE, and the basic outline is actually a component footprint that you can copy into your own designs. Gerbers are also provided which can be sent direct to your favourite PCB manufacturer. The pin headers are surface mount, but these are not much more difficult to solder than a typical through hole version.
 
 <img src="images/wic-breakout.jpg">
+
+When ordering, specifications of the board should be:
+
+* PCB thickness: 1.6mm
+* Dimension: 71x103mm
+* Layers: 2, 1oz copper
+* Material: FR4
+* Colour: whatever you want
+* Finish: lead free if HASL
