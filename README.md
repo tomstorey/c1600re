@@ -29,6 +29,7 @@ Documented here is my effort to reverse engineer enough detail about the Cisco 1
   * [Reset Button Modification](#reset-button-modification)
   * [Overclocking](#overclocking)
   * [A19 Issue](#a19-issue)
+  * [WIC Breakout Board](#wic-breakout-board)
 
 ### Rationale
 This was an extension of my [Cisco 2500 reverse engineering](https://github.com/tomstorey/c2500re) effort, something which I took up while waiting for some PCBs to arrive to test out an idea for providing IO via one of the Flash sockets.
@@ -917,3 +918,12 @@ Unfortunately, unless you have good soldering skills yourself, or access to a fr
 The following image is a representation of the original circuitry, and the circuitry after the mods are completed.
 
 <img src="images/mod-summary.png">
+
+## WIC Breakout Board
+To help with prototyping your projects, in particular those where you want to make use of the WIC slot, Ive designed a breakout board that presents all signals on some 0.1" pin headers.
+
+To use this breakout board you will need to find a WIC card that you dont mind sacrificing in order to salvage a connector. Certain WICs can be had on ebay for only a couple of dollars/pounds. I found it easier to remove using a hot air station, but you may be able to indiviaully lift each pin from its pad using a soldering iron, perhaps using some solder wick first to remove the bulk of the solder, it will just be a long process. Be careful with the pins on the socket as they can be quite delicate.
+
+The board was designed using EAGLE, and the basic outline is actually a component footprint that you can copy into your own designs. Gerbers are also provided which can be sent direct to your favourite PCB manufacturer. The pin headers are surface mount, but these are not much more difficult to solder than a typical through hole version.
+
+<img src="images/wic-breakout.jpg">
