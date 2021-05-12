@@ -14,7 +14,7 @@
  * terminal value for the stack relocation code */
 #define FRAME_TERM 0xDEADBEEF
 
-#define __DEBUG__
+/* #define __DEBUG__ */
 
 /* The following registers are all internal to the QUICC */
 #define DPRBASE MODULE_BASE
@@ -70,6 +70,18 @@ typedef union {
 
 
 #define INTCON (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x80004))
+typedef union {
+    struct {
+        uint8_t :5;
+        uint8_t ONBOARD:1;
+        uint8_t :1;
+        uint8_t WIC:1;
+    };
+    struct {
+        uint8_t u8;
+    };
+} __INTCONbits_t;
+#define INTCONbits (*(volatile __INTCONbits_t *)(PERIPHERAL_BASE + 0x80004))
 
 
 #define INTSRC (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x80005))
@@ -97,7 +109,7 @@ typedef union {
         uint8_t u8;
     };
 } __PCTLbits_t;
-#define PCTLbits (*(volatile __PCTLbits_t *)(PERIPHERAL_BASE + 0x80001))
+#define PCTLbits (*(volatile __PCTLbits_t *)(PERIPHERAL_BASE + 0x8000F))
 
 
 /* This register is a work in progress */
@@ -2284,7 +2296,48 @@ typedef union {
 
 #define SYSOPT (PERIPHERAL_BASE + 0x80000)
 #define LEDCR (PERIPHERAL_BASE + 0x80001)
+#define INTCON (PERIPHERAL_BASE + 0x80004)
+#define INTSRC (PERIPHERAL_BASE + 0x80005)
 #define PCTL (PERIPHERAL_BASE + 0x8000F)
+
+#define SPCR (PERIPHERAL_BASE + 0x30000)
+#define SSTR (PERIPHERAL_BASE + 0x30001)
+#define SSCR (PERIPHERAL_BASE + 0x30002)
+#define SACR (PERIPHERAL_BASE + 0x30003)
+
+#define SPIRBASE (SPIBASE))
+#define SPITBASE (SPIBASE + 0x2))
+#define SPIRFCR (SPIBASE + 0x4))
+#define SPIRFCRbits (SPIBASE + 0x4))
+#define SPITFCR (SPIBASE + 0x5))
+#define SPITFCRbits (SPIBASE + 0x5))
+#define SPIMRBLR (SPIBASE + 0x6))
+#define IDMA1IBASE (IDMA1BASE))
+#define IDMA1IBPTR (IDMA1BASE + 0x2))
+#define SMC1RBASE (SMC1BASE))
+#define SMC1TBASE (SMC1BASE + 0x2))
+#define SMC1RFCR (SMC1BASE + 0x4))
+#define SMC1RFCRbits (SMC1BASE + 0x4))
+#define SMC1TFCR (SMC1BASE + 0x5))
+#define SMC1TFCRbits (SMC1BASE + 0x5))
+#define SMC1MRBLR (SMC1BASE + 0x6))
+#define SMC1MAX_IDL (SMC1BASE + 0x28))
+#define SMC1BRKLN (SMC1BASE + 0x2C))
+#define SMC1BRKEC (SMC1BASE + 0x2E))
+#define SMC1BRKCR (SMC1BASE + 0x30))
+#define IDMA2IBASE (IDMA2BASE))
+#define IDMA2IBPTR (IDMA2BASE + 0x2))
+#define SMC2RBASE (SMC2BASE))
+#define SMC2TBASE (SMC2BASE + 0x2))
+#define SMC2RFCR (SMC2BASE + 0x4))
+#define SMC2RFCRbits (SMC2BASE + 0x4))
+#define SMC2TFCR (SMC2BASE + 0x5))
+#define SMC2TFCRbits (SMC2BASE + 0x5))
+#define SMC2MRBLR (SMC2BASE + 0x6))
+#define SMC2MAX_IDL (SMC2BASE + 0x28))
+#define SMC2BRKLN (SMC2BASE + 0x2C))
+#define SMC2BRKEC (SMC2BASE + 0x2E))
+#define SMC2BRKCR (SMC2BASE + 0x30))
 
 #define MCR (REGB + 0)
 #define AVR (REGB + 0x8)
