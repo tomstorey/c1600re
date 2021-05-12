@@ -496,17 +496,18 @@ WAN Interface Cards (WICs) are Cisco proprietary modules that provide various di
 
 The 1600R has one WIC slot accessible at address 0x0D050000, which is part of an address range configured on CS3/.
 
-Through buzzing out the connectivity to the WIC slot I identified 8 address bits and 8 data bits.
-
-The following signals were identified, and alone are likely to be sufficient for creating your own cards to plug into the WIC slot and provide additional IO and periperhals:
+The following signals have been identified, and alone are likely to be sufficient for creating your own cards to plug into the WIC slot and provide additional IO and periperhals:
 
 * Address pins A7..0
 * Data pins D7..0
 * DS/ (data strobe)
 * CS/ (chip select)
 * R or W/ (read or write - write being active low)
+* Active low reset and interrupt signals
 * EEPROM CS, DI, DO, SK (SPI interface to a small inventory EEPROM)
 * Power supply pins - 2x +5V, 1x -5V, 1x +12V, 1x -12V, numerous GND
+
+See [WIC Breakout Board](#wic-breakout-board) for details of a board that you can get made to help with prototyping.
 
 Pinout for the WIC slot identified so far is as follows. Orientation of the WIC connector should be view from the rear of the card looking into the connector, with the notches on the sides of the connector arranged as `]` on the left and `L` on the right. In this orientation, pin 1 is top right, pin 34 is top left, pin 35 is bottom right and pin 68 bottom left.
 
