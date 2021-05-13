@@ -268,6 +268,86 @@
 <smd name="34" x="20.32" y="2.7" dx="1.5" dy="3.1" layer="1"/>
 <circle x="-22.86" y="-2.54" radius="0.3" width="1" layer="21"/>
 </package>
+<package name="PLCC32-SOCKET">
+<smd name="1" x="0" y="6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="2" x="-1.27" y="6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="3" x="-2.54" y="6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="4" x="-3.81" y="6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="5" x="-5.335" y="5.08" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="6" x="-5.335" y="3.81" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="7" x="-5.335" y="2.54" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="8" x="-5.335" y="1.27" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="9" x="-5.335" y="0" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="10" x="-5.335" y="-1.27" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="11" x="-5.335" y="-2.54" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="12" x="-5.335" y="-3.81" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="13" x="-5.335" y="-5.08" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="14" x="-3.81" y="-6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="15" x="-2.54" y="-6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="16" x="-1.27" y="-6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="17" x="0" y="-6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="18" x="1.27" y="-6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="19" x="2.54" y="-6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="20" x="3.81" y="-6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="21" x="5.335" y="-5.08" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="22" x="5.335" y="-3.81" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="23" x="5.335" y="-2.54" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="24" x="5.335" y="-1.27" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="25" x="5.335" y="0" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="26" x="5.335" y="1.27" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="27" x="5.335" y="2.54" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="28" x="5.335" y="3.81" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="29" x="5.335" y="5.08" dx="0.76" dy="1.91" layer="1" rot="R90"/>
+<smd name="30" x="3.81" y="6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="31" x="2.54" y="6.605" dx="0.76" dy="1.91" layer="1"/>
+<smd name="32" x="1.27" y="6.605" dx="0.76" dy="1.91" layer="1"/>
+<wire x1="-7.16" y1="9.75" x2="8.5" y2="9.75" width="0.127" layer="21"/>
+<wire x1="8.5" y1="9.75" x2="8.5" y2="-9.75" width="0.127" layer="21"/>
+<wire x1="8.5" y1="-9.75" x2="-8.5" y2="-9.75" width="0.127" layer="21"/>
+<wire x1="-8.5" y1="-9.75" x2="-8.5" y2="8.41" width="0.127" layer="21"/>
+<circle x="0" y="10.84" radius="0.25" width="1" layer="21"/>
+<wire x1="-8.5" y1="8.41" x2="-7.16" y2="9.75" width="0.127" layer="21"/>
+</package>
+<package name="W9324">
+<smd name="1" x="0" y="8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="32" x="-1.27" y="8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="31" x="-2.54" y="8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="30" x="-3.81" y="8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="29" x="-7.125" y="5.08" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="28" x="-7.125" y="3.81" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="27" x="-7.125" y="2.54" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="26" x="-7.125" y="1.27" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="25" x="-7.125" y="0" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="24" x="-7.125" y="-1.27" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="23" x="-7.125" y="-2.54" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="22" x="-7.125" y="-3.81" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="21" x="-7.125" y="-5.08" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="20" x="-3.81" y="-8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="19" x="-2.54" y="-8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="18" x="-1.27" y="-8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="17" x="0" y="-8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="16" x="1.27" y="-8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="15" x="2.54" y="-8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="14" x="3.81" y="-8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="13" x="7.125" y="-5.08" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="12" x="7.125" y="-3.81" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="11" x="7.125" y="-2.54" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="10" x="7.125" y="-1.27" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="9" x="7.125" y="0" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="8" x="7.125" y="1.27" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="7" x="7.125" y="2.54" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="6" x="7.125" y="3.81" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="5" x="7.125" y="5.08" dx="0.9" dy="4.55" layer="1" rot="R90"/>
+<smd name="4" x="3.81" y="8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="3" x="2.54" y="8.375" dx="0.9" dy="4.55" layer="1"/>
+<smd name="2" x="1.27" y="8.375" dx="0.9" dy="4.55" layer="1"/>
+<wire x1="-9.76" y1="11.03" x2="7.42" y2="11.03" width="0.127" layer="21"/>
+<wire x1="7.42" y1="11.03" x2="9.76" y2="8.69" width="0.127" layer="21"/>
+<wire x1="9.76" y1="8.69" x2="9.76" y2="-11.03" width="0.127" layer="21"/>
+<wire x1="9.76" y1="-11.03" x2="-9.76" y2="-11.03" width="0.127" layer="21"/>
+<wire x1="-9.76" y1="-11.03" x2="-9.76" y2="11.03" width="0.127" layer="21"/>
+<circle x="0" y="12.12" radius="0.25" width="1" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="MS">
@@ -369,7 +449,7 @@
 <gate name="-D2" symbol="MS" x="-38.1" y="17.78" addlevel="always"/>
 <gate name="-D4" symbol="MS" x="-38.1" y="15.24" addlevel="always"/>
 <gate name="-D6" symbol="MS" x="-38.1" y="12.7" addlevel="always"/>
-<gate name="-!DS!" symbol="MS" x="-38.1" y="10.16" addlevel="always"/>
+<gate name="-!RD!" symbol="MS" x="-38.1" y="10.16" addlevel="always"/>
 <gate name="-16" symbol="MS" x="-38.1" y="7.62" addlevel="always"/>
 <gate name="--5V" symbol="MS" x="-38.1" y="5.08" addlevel="always"/>
 <gate name="-A0" symbol="MS" x="-38.1" y="2.54" addlevel="always"/>
@@ -413,7 +493,7 @@
 <gate name="-56" symbol="MS" x="-7.62" y="-7.62" addlevel="always"/>
 <gate name="-57" symbol="MS" x="-7.62" y="-10.16" addlevel="always"/>
 <gate name="-EEPROM_SK" symbol="MS" x="-7.62" y="-12.7" addlevel="always"/>
-<gate name="-R!W!" symbol="MS" x="-7.62" y="-15.24" addlevel="always"/>
+<gate name="-!WR!" symbol="MS" x="-7.62" y="-15.24" addlevel="always"/>
 <gate name="-60" symbol="MS" x="-7.62" y="-17.78" addlevel="always"/>
 <gate name="-61" symbol="MS" x="-7.62" y="-20.32" addlevel="always"/>
 <gate name="-62" symbol="MS" x="-7.62" y="-22.86" addlevel="always"/>
@@ -428,9 +508,10 @@
 <device name="" package="WIC">
 <connects>
 <connect gate="-!CS!" pin="MS" pad="P$25"/>
-<connect gate="-!DS!" pin="MS" pad="P$15"/>
 <connect gate="-!INT!" pin="MS" pad="P$50"/>
+<connect gate="-!RD!" pin="MS" pad="P$15"/>
 <connect gate="-!RST!" pin="MS" pad="P$67"/>
+<connect gate="-!WR!" pin="MS" pad="P$59"/>
 <connect gate="-+12V" pin="MS" pad="P$34"/>
 <connect gate="-+5V@1" pin="MS" pad="P$35"/>
 <connect gate="-+5V@2" pin="MS" pad="P$68"/>
@@ -494,7 +575,6 @@
 <connect gate="-GND@8" pin="MS" pad="P$33"/>
 <connect gate="-GND@9" pin="MS" pad="P$37"/>
 <connect gate="-PD" pin="MS" pad="P$36"/>
-<connect gate="-R!W!" pin="MS" pad="P$59"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -544,6 +624,160 @@
 <connect gate="G$1" pin="7" pad="7"/>
 <connect gate="G$1" pin="8" pad="8"/>
 <connect gate="G$1" pin="9" pad="9"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="PLCC32-SOCKET" prefix="S">
+<gates>
+<gate name="-1" symbol="MS" x="-15.24" y="17.78" addlevel="always"/>
+<gate name="-2" symbol="MS" x="-15.24" y="15.24" addlevel="always"/>
+<gate name="-3" symbol="MS" x="-15.24" y="12.7" addlevel="always"/>
+<gate name="-4" symbol="MS" x="-15.24" y="10.16" addlevel="always"/>
+<gate name="-5" symbol="MS" x="-15.24" y="7.62" addlevel="always"/>
+<gate name="-6" symbol="MS" x="-15.24" y="5.08" addlevel="always"/>
+<gate name="-7" symbol="MS" x="-15.24" y="2.54" addlevel="always"/>
+<gate name="-8" symbol="MS" x="-15.24" y="0" addlevel="always"/>
+<gate name="-9" symbol="MS" x="-15.24" y="-2.54" addlevel="always"/>
+<gate name="-10" symbol="MS" x="-15.24" y="-5.08" addlevel="always"/>
+<gate name="-11" symbol="MS" x="-15.24" y="-7.62" addlevel="always"/>
+<gate name="-12" symbol="MS" x="-15.24" y="-10.16" addlevel="always"/>
+<gate name="-13" symbol="MS" x="-15.24" y="-12.7" addlevel="always"/>
+<gate name="-14" symbol="MS" x="-15.24" y="-15.24" addlevel="always"/>
+<gate name="-15" symbol="MS" x="-15.24" y="-17.78" addlevel="always"/>
+<gate name="-16" symbol="MS" x="-15.24" y="-20.32" addlevel="always"/>
+<gate name="-17" symbol="MS" x="12.7" y="17.78" addlevel="always"/>
+<gate name="-18" symbol="MS" x="12.7" y="15.24" addlevel="always"/>
+<gate name="-19" symbol="MS" x="12.7" y="12.7" addlevel="always"/>
+<gate name="-20" symbol="MS" x="12.7" y="10.16" addlevel="always"/>
+<gate name="-21" symbol="MS" x="12.7" y="7.62" addlevel="always"/>
+<gate name="-22" symbol="MS" x="12.7" y="5.08" addlevel="always"/>
+<gate name="-23" symbol="MS" x="12.7" y="2.54" addlevel="always"/>
+<gate name="-24" symbol="MS" x="12.7" y="0" addlevel="always"/>
+<gate name="-25" symbol="MS" x="12.7" y="-2.54" addlevel="always"/>
+<gate name="-26" symbol="MS" x="12.7" y="-5.08" addlevel="always"/>
+<gate name="-27" symbol="MS" x="12.7" y="-7.62" addlevel="always"/>
+<gate name="-28" symbol="MS" x="12.7" y="-10.16" addlevel="always"/>
+<gate name="-29" symbol="MS" x="12.7" y="-12.7" addlevel="always"/>
+<gate name="-30" symbol="MS" x="12.7" y="-15.24" addlevel="always"/>
+<gate name="-31" symbol="MS" x="12.7" y="-17.78" addlevel="always"/>
+<gate name="-32" symbol="MS" x="12.7" y="-20.32" addlevel="always"/>
+</gates>
+<devices>
+<device name="" package="PLCC32-SOCKET">
+<connects>
+<connect gate="-1" pin="MS" pad="1"/>
+<connect gate="-10" pin="MS" pad="10"/>
+<connect gate="-11" pin="MS" pad="11"/>
+<connect gate="-12" pin="MS" pad="12"/>
+<connect gate="-13" pin="MS" pad="13"/>
+<connect gate="-14" pin="MS" pad="14"/>
+<connect gate="-15" pin="MS" pad="15"/>
+<connect gate="-16" pin="MS" pad="16"/>
+<connect gate="-17" pin="MS" pad="17"/>
+<connect gate="-18" pin="MS" pad="18"/>
+<connect gate="-19" pin="MS" pad="19"/>
+<connect gate="-2" pin="MS" pad="2"/>
+<connect gate="-20" pin="MS" pad="20"/>
+<connect gate="-21" pin="MS" pad="21"/>
+<connect gate="-22" pin="MS" pad="22"/>
+<connect gate="-23" pin="MS" pad="23"/>
+<connect gate="-24" pin="MS" pad="24"/>
+<connect gate="-25" pin="MS" pad="25"/>
+<connect gate="-26" pin="MS" pad="26"/>
+<connect gate="-27" pin="MS" pad="27"/>
+<connect gate="-28" pin="MS" pad="28"/>
+<connect gate="-29" pin="MS" pad="29"/>
+<connect gate="-3" pin="MS" pad="3"/>
+<connect gate="-30" pin="MS" pad="30"/>
+<connect gate="-31" pin="MS" pad="31"/>
+<connect gate="-32" pin="MS" pad="32"/>
+<connect gate="-4" pin="MS" pad="4"/>
+<connect gate="-5" pin="MS" pad="5"/>
+<connect gate="-6" pin="MS" pad="6"/>
+<connect gate="-7" pin="MS" pad="7"/>
+<connect gate="-8" pin="MS" pad="8"/>
+<connect gate="-9" pin="MS" pad="9"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="W9324" prefix="CON">
+<gates>
+<gate name="-1" symbol="MS" x="-15.24" y="17.78" addlevel="always"/>
+<gate name="-2" symbol="MS" x="-15.24" y="15.24" addlevel="always"/>
+<gate name="-3" symbol="MS" x="-15.24" y="12.7" addlevel="always"/>
+<gate name="-4" symbol="MS" x="-15.24" y="10.16" addlevel="always"/>
+<gate name="-5" symbol="MS" x="-15.24" y="7.62" addlevel="always"/>
+<gate name="-6" symbol="MS" x="-15.24" y="5.08" addlevel="always"/>
+<gate name="-7" symbol="MS" x="-15.24" y="2.54" addlevel="always"/>
+<gate name="-8" symbol="MS" x="-15.24" y="0" addlevel="always"/>
+<gate name="-9" symbol="MS" x="-15.24" y="-2.54" addlevel="always"/>
+<gate name="-10" symbol="MS" x="-15.24" y="-5.08" addlevel="always"/>
+<gate name="-11" symbol="MS" x="-15.24" y="-7.62" addlevel="always"/>
+<gate name="-12" symbol="MS" x="-15.24" y="-10.16" addlevel="always"/>
+<gate name="-13" symbol="MS" x="-15.24" y="-12.7" addlevel="always"/>
+<gate name="-14" symbol="MS" x="-15.24" y="-15.24" addlevel="always"/>
+<gate name="-15" symbol="MS" x="-15.24" y="-17.78" addlevel="always"/>
+<gate name="-16" symbol="MS" x="-15.24" y="-20.32" addlevel="always"/>
+<gate name="-17" symbol="MS" x="12.7" y="17.78" addlevel="always"/>
+<gate name="-18" symbol="MS" x="12.7" y="15.24" addlevel="always"/>
+<gate name="-19" symbol="MS" x="12.7" y="12.7" addlevel="always"/>
+<gate name="-20" symbol="MS" x="12.7" y="10.16" addlevel="always"/>
+<gate name="-21" symbol="MS" x="12.7" y="7.62" addlevel="always"/>
+<gate name="-22" symbol="MS" x="12.7" y="5.08" addlevel="always"/>
+<gate name="-23" symbol="MS" x="12.7" y="2.54" addlevel="always"/>
+<gate name="-24" symbol="MS" x="12.7" y="0" addlevel="always"/>
+<gate name="-25" symbol="MS" x="12.7" y="-2.54" addlevel="always"/>
+<gate name="-26" symbol="MS" x="12.7" y="-5.08" addlevel="always"/>
+<gate name="-27" symbol="MS" x="12.7" y="-7.62" addlevel="always"/>
+<gate name="-28" symbol="MS" x="12.7" y="-10.16" addlevel="always"/>
+<gate name="-29" symbol="MS" x="12.7" y="-12.7" addlevel="always"/>
+<gate name="-30" symbol="MS" x="12.7" y="-15.24" addlevel="always"/>
+<gate name="-31" symbol="MS" x="12.7" y="-17.78" addlevel="always"/>
+<gate name="-32" symbol="MS" x="12.7" y="-20.32" addlevel="always"/>
+</gates>
+<devices>
+<device name="" package="W9324">
+<connects>
+<connect gate="-1" pin="MS" pad="1"/>
+<connect gate="-10" pin="MS" pad="10"/>
+<connect gate="-11" pin="MS" pad="11"/>
+<connect gate="-12" pin="MS" pad="12"/>
+<connect gate="-13" pin="MS" pad="13"/>
+<connect gate="-14" pin="MS" pad="14"/>
+<connect gate="-15" pin="MS" pad="15"/>
+<connect gate="-16" pin="MS" pad="16"/>
+<connect gate="-17" pin="MS" pad="17"/>
+<connect gate="-18" pin="MS" pad="18"/>
+<connect gate="-19" pin="MS" pad="19"/>
+<connect gate="-2" pin="MS" pad="2"/>
+<connect gate="-20" pin="MS" pad="20"/>
+<connect gate="-21" pin="MS" pad="21"/>
+<connect gate="-22" pin="MS" pad="22"/>
+<connect gate="-23" pin="MS" pad="23"/>
+<connect gate="-24" pin="MS" pad="24"/>
+<connect gate="-25" pin="MS" pad="25"/>
+<connect gate="-26" pin="MS" pad="26"/>
+<connect gate="-27" pin="MS" pad="27"/>
+<connect gate="-28" pin="MS" pad="28"/>
+<connect gate="-29" pin="MS" pad="29"/>
+<connect gate="-3" pin="MS" pad="3"/>
+<connect gate="-30" pin="MS" pad="30"/>
+<connect gate="-31" pin="MS" pad="31"/>
+<connect gate="-32" pin="MS" pad="32"/>
+<connect gate="-4" pin="MS" pad="4"/>
+<connect gate="-5" pin="MS" pad="5"/>
+<connect gate="-6" pin="MS" pad="6"/>
+<connect gate="-7" pin="MS" pad="7"/>
+<connect gate="-8" pin="MS" pad="8"/>
+<connect gate="-9" pin="MS" pad="9"/>
 </connects>
 <technologies>
 <technology name=""/>

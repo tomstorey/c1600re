@@ -500,9 +500,8 @@ The following signals have been identified, and alone are likely to be sufficien
 
 * Address pins A7..0
 * Data pins D7..0
-* DS/ (data strobe)
 * CS/ (chip select)
-* R or W/ (read or write - write being active low)
+* RD/ and WR/ (read and write strobes)
 * Active low reset and interrupt signals
 * EEPROM CS, DI, DO, SK (SPI interface to a small inventory EEPROM)
 * Power supply pins - 2x +5V, 1x -5V, 1x +12V, 1x -12V, numerous GND
@@ -542,7 +541,7 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
             <td>7</td><td>CPU PA5</td><td>24</td><td>GND</td><td>41</td><td>CPU PC6</td><td>58</td><td>EEPROM SK</td>
         </tr>
         <tr>
-            <td>8</td><td>CPU PC7</td><td>25</td><td>CS/</td><td>42</td><td>CPU PC2</td><td>59</td><td>R or W/</td>
+            <td>8</td><td>CPU PC7</td><td>25</td><td>CS/</td><td>42</td><td>CPU PC2</td><td>59</td><td>WR/</td>
         </tr>
         <tr>
             <td>9</td><td>CPU PC9</td><td>26</td><td></td><td>43</td><td>CPU PC8</td><td>60</td><td></td>
@@ -563,7 +562,7 @@ Pinout for the WIC slot identified so far is as follows. Orientation of the WIC 
             <td>14</td><td>D6</td><td>31</td><td>GND</td><td>48</td><td>D7</td><td>65</td><td></td>
         </tr>
         <tr>
-            <td>15</td><td>DS/</td><td>32</td><td></td><td>49</td><td>EEPROM CS</td><td>66</td><td>GND</td>
+            <td>15</td><td>RD/</td><td>32</td><td></td><td>49</td><td>EEPROM CS</td><td>66</td><td>GND</td>
         </tr>
         <tr>
             <td>16</td><td>CPU PB4</td><td>33</td><td>GND</td><td>50</td><td>INT/</td><td>67</td><td>RST/</td>
