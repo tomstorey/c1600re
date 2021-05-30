@@ -166,13 +166,13 @@ Flash storage is via a PCMCIA form factor linear flash module, and the routers d
 
 Flash is located at 0x08000000, and uses CS4/.
 
-The total address space mapped to CS4/ is 32Mbyte, with the Flash card visible in the first half, and some information about the card itself visible from address 0x09000000 and repeating every 4Kbyte.
+The total address space mapped to CS4/ is 32Mbyte, with the Flash card contents visible from 0x08000000, and the Card Information Structure visible from 0x09000000.
 
 During boot, the boot ROM makes mention of initialising a "PCMCIA controller". This is contained within one of the Altera CPLDs, and attempting to read from the flash memory range before the controller has been initialised will result in a bus error exception.
 
 Once again it seems that there may be some kind of proprietary pinout being used on the flash card. Comparing some signals like chip enables, data lines etc do not produce activity when you would expect to see it. I dont know how important it is to know the pinout, except to be aware that a standard PCMCIA memory card may not work in a Cisco router.
 
-There are 4 byte sized registers associated with the PCMCIA controller, and based on initial experiments I have determined likely functions for some of the bits within:
+There are 4 byte sized registers associated with the PCMCIA controller, and based on initial experiments I have determined functions for some of the bits within (please note, the following are still somewhat of a work in progress):
 
 **Socket Power Control Register 0x0D030000**
 <table>
@@ -183,8 +183,8 @@ There are 4 byte sized registers associated with the PCMCIA controller, and base
     </thead>
     <tbody>
         <tr>
-            <td></td>
-            <td></td>
+            <td align="center">R/W-0</td>
+            <td align="center">R/W-0</td>
             <td></td>
             <td></td>
             <td align="center">R/W-0</td>
@@ -193,8 +193,8 @@ There are 4 byte sized registers associated with the PCMCIA controller, and base
             <td></td>
         </tr>
         <tr>
-            <td></td>
-            <td></td>
+            <td align="center">VPPSEL0</td>
+            <td align="center">VPPSEL1</td>
             <td></td>
             <td></td>
             <td align="center">EN</td>
@@ -205,12 +205,24 @@ There are 4 byte sized registers associated with the PCMCIA controller, and base
     </tbody>
 </table>
 
+Bit 7-6: VPPSELx: VPP voltage selection<br>
+&nbsp;&nbsp;&nbsp;&nbsp;00: GND<br>
+&nbsp;&nbsp;&nbsp;&nbsp;01: +5V (when socket power is enabled)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;10: +12V<br>
+&nbsp;&nbsp;&nbsp;&nbsp;11: HiZ<br>
+Bit 6: EN: Power delivery control<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Disabled<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Enabled<br>
 Bit 3: EN: Power delivery control<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: Disabled<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: Enabled<br>
 Bit 2: PWR: Power delivery status<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: Card is not powered<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: Card is powered<br>
+
+The VPPSELx bits map to two pins on an LTC1314, which is a PCMCIA power delivery controller, and provides an ability to switch a variety of different voltages to the VPP pin of the flash socket.
+
+Pay attention that the VPPSELx bits are in reverse order - bit 0 is in the highest physical bit position. This is how the bits of the register physically map to the ENx pins of the LTC1314.
 
 **Socket Status Register 0x0D030001**
 <table>
@@ -284,6 +296,8 @@ Bit 7: CD: Flash card presence<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: No change<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: Change detected<br>
 
+**Note:** The Socket Status Change Register bits will reset on read.
+
 **Socket Access Control Register 0x0D030003**
 <table>
     <thead>
@@ -304,7 +318,7 @@ Bit 7: CD: Flash card presence<br>
         </tr>
         <tr>
             <td></td>
-            <td align="center">RD</td>
+            <td align="center">ADDEN</td>
             <td></td>
             <td></td>
             <td></td>
@@ -313,9 +327,9 @@ Bit 7: CD: Flash card presence<br>
     </tbody>
 </table>
 
-Bit 6: RD: Read access<br>
-&nbsp;&nbsp;&nbsp;&nbsp;0: Disabled<br>
-&nbsp;&nbsp;&nbsp;&nbsp;1: Enabled<br>
+Bit 6: ADDEN: Address bus enable<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: Socket address bus is disabled<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: Socket address bus is enabled<br>
 Bits 2-0: WAIT: Wait states for access<br>
 &nbsp;&nbsp;&nbsp;&nbsp;000: 4 clocks<br>
 &nbsp;&nbsp;&nbsp;&nbsp;001: 5 clocks<br>
@@ -396,7 +410,11 @@ init_pcmcia_controller(void)
 
 If the initialisation completes successfully, the card is now readable.
 
-Write access is still a work in progress. TODO
+While the flash card can be read on a byte-by-byte basis, writes must be done as words, and therefore on even addresses only. Attempting to write bytes or to odd addresses results in a bus error. With this in mind, you can issue standard commands to the flash devices to erase and program their contents. Bear in mind that you will need to shift the command address one bit to the left when doing so. My flash card uses 29F080 chips, and commands typically start with a write to address "555" as indicated in the datasheet. This translates physically to e.g. 0x08000AAA, likely because bit 0 is used to select between odd/even bytes.
+
+Bits which are used to control the delivery of a voltage to the VPP pin of the socket were identified, but depending on the flash chips used within your flash card, VPP voltage may or may not be required. Potentially something within the Card Information Structure (accessible from address 0x09000000) will help to determine what kind of flash chips are used and whether they will need VPP to access their command register.
+
+Bit 7 of the Socket Access Control Register is toggled during initialisation, but its exact function is currently unknown.
 
 ## Peripherals
 
@@ -451,6 +469,7 @@ The following GPIO pins are known to be used for the noted purposes, based on th
   * PA12 - WIC pin 5
   * PA13 - WIC pin 38
 * PORTB
+  * PB0 - Would be SPISEL/, but unused
   * PB1 - WIC EEPROM SK (SPICLK)
   * PB2 - WIC EEPROM DI (SPIMOSI)
   * PB3 - WIC EEPROM DO (SPIMISO)
@@ -461,9 +480,11 @@ The following GPIO pins are known to be used for the noted purposes, based on th
   * PB8 - console pin 2 - DTR (s/w control only)
   * PB9 - console pin 7 - DSR (s/w control only)
   * PB10 - Ethernet JAB
+  * PB11 - Ethernet LEDC or FDE/
   * PB12 - Ethernet TEN
   * PB13 - Ethernet LBK
   * PB14 - Ethernet AUTOSEL
+  * PB15 - Ethernet PAUI
   * PB16 - WIC pin 36 - pin is pulled up via resistor, and on a selection of WICs I have is pulled down via a 0 ohm resistor, so probably something like a presence detect function
 * PORTC
   * PC2 - WIC pin 42
