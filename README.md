@@ -193,8 +193,7 @@ There are 4 byte sized registers associated with the PCMCIA controller, and base
             <td></td>
         </tr>
         <tr>
-            <td align="center">VPPSEL1</td>
-            <td align="center">VPPSEL0</td>
+            <td align="center" colspan="2">VPPSEL</td>
             <td></td>
             <td></td>
             <td align="center">EN</td>
@@ -205,7 +204,7 @@ There are 4 byte sized registers associated with the PCMCIA controller, and base
     </tbody>
 </table>
 
-Bit 7-6: VPPSELx: VPP voltage selection<br>
+Bits 7-6: VPPSEL: VPP voltage selection<br>
 &nbsp;&nbsp;&nbsp;&nbsp;00: GND<br>
 &nbsp;&nbsp;&nbsp;&nbsp;01: +5V (when socket power is enabled)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;10: +12V<br>
