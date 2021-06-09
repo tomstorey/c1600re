@@ -193,8 +193,8 @@ There are 4 byte sized registers associated with the PCMCIA controller, and base
             <td></td>
         </tr>
         <tr>
-            <td align="center">VPPSEL0</td>
             <td align="center">VPPSEL1</td>
+            <td align="center">VPPSEL0</td>
             <td></td>
             <td></td>
             <td align="center">EN</td>
@@ -221,8 +221,6 @@ Bit 2: PWR: Power delivery status<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: Card is powered<br>
 
 The VPPSELx bits map to two pins on an LTC1314, which is a PCMCIA power delivery controller, and provides an ability to switch a variety of different voltages to the VPP pin of the flash socket.
-
-Pay attention that the VPPSELx bits are in reverse order - bit 0 is in the highest physical bit position. This is how the bits of the register physically map to the ENx pins of the LTC1314.
 
 **Socket Status Register 0x0D030001**
 <table>
@@ -390,7 +388,7 @@ init_pcmcia_controller(void)
             SPCRbits.EN = 1;
             delay_loop();
 
-            /* Configure read access bit and wait states */
+            /* Configure bus propagation and wait states */
             SACR = 0xC7;
             delay_loop();
             SACR = 0x47;

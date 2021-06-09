@@ -116,8 +116,8 @@ typedef union {
 #define SPCR (*(volatile uint8_t *)(PERIPHERAL_BASE + 0x30000))
 typedef union {
     struct {
-        uint8_t VPPSEL0:1;
         uint8_t VPPSEL1:1;
+        uint8_t VPPSEL0:1;
         uint8_t :2;
         uint8_t EN:1;
         uint8_t PWR:1;
