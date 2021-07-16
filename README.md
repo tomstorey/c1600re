@@ -670,7 +670,7 @@ The outputs of the register are used to sink current via the LEDs, so the logic 
             <td align="center">R/W-0</td>
             <td align="center">R/W-0</td>
             <td></td>
-            <td></td>
+            <td align="center">R/W-0</td>
             <td></td>
         </tr>
         <tr>
@@ -680,7 +680,7 @@ The outputs of the register are used to sink current via the LEDs, so the logic 
             <td align="center">LED3</td>
             <td align="center">LED4</td>
             <td></td>
-            <td></td>
+            <td align="center">REAROK</td>
             <td></td>
         </tr>
     </tbody>
@@ -699,6 +699,9 @@ Bit 4: LED3: Multi-purpose LED 3<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
 Bit 3: LED4: Multi-purpose LED 4<br>
+&nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
+Bit 1: REAROK: OK LED beside ISDN jack on rear (1603R)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;0: LED is on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;1: LED is off<br>
 

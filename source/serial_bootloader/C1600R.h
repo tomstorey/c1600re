@@ -60,7 +60,9 @@ typedef union {
         uint8_t LED2:1;
         uint8_t LED3:1;
         uint8_t LED4:1;
-        uint8_t :3;
+        uint8_t :1;
+        uint8_t REAROK:1;
+        uint8_t :1;
     };
     struct {
         uint8_t u8;
