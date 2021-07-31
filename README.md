@@ -28,7 +28,9 @@ Documented here is my effort to reverse engineer enough detail about the Cisco 1
   * [Minimal Startup Code](#minimal-startup-code)
   * [Reset Button Modification](#reset-button-modification)
   * [Overclocking](#overclocking)
-  * [A19 Issue](#a19-issue)
+  * [ROM Address Signal Mods](#rom-address-signal-mods)
+    + [Fiddly mods method](#fiddly-mods-method)
+    + [ROM adapter method](#rom-adapter-method)
   * [WIC Breakout Board](#wic-breakout-board)
 
 ### Rationale
@@ -81,19 +83,11 @@ The boot ROMs present a 16 bit port to the CPU.
 
 Bit order in the boot ROMs is "natural" on the 1600R, unlike the 2500 series where it was mirrored. One thing I did notice, however, is that the ROMs were split down the middle and the two halves swapped, indicating that the most significant address bit (A19) may be inverted. This theory was tested and confirmed - when using 4Mbit ROMs I had to swap the two 2Mbit halves of the image in order to function correctly. A19 is supplied by one of the CPLDs, so it is probable the inversion is being applied in there.
 
-Boot ROMs are mirrored at addresses 0 and 0x04000000, although this is not a strict requirement. FW1 and FW2 can cover the address range 0-XX1FFFFF, while FW3 and FW4 then cover 0xXX200000-XX3FFFFF within these windows. Boot ROMs use CS0/, which at reset begins at address 0 and covers the entire address space allowing the reset vector to be read by the CPU. This window may then be closed up by modifying the OR0 and BR0 registers appropriately.
+Boot ROMs were configured to be mirrored at addresses 0 and 0x04000000, although this is not a strict requirement. FW1 and FW2 can cover the address range 0-XX1FFFFF, while FW3 and FW4 then cover 0xXX200000-XX3FFFFF within these windows. Boot ROMs use CS0/, which at reset begins at address 0 and covers the entire address space allowing the reset vector to be read by the CPU. This window may then be closed up by modifying the OR0 and BR0 registers appropriately.
 
-Due to the ROMs being 8Mbit in size, smaller ROMs will once again encounter an issue with the WE/ pin being driven by an address signal. Unlike the 2500 series, there are no pre-existing jumpers to address this, so a hardware mod is required to be implemented by the user. This requires some fine and delicate soldering, so unfortunately will not be accessible to everyone. None the less, details are provided here for anyone that wishes to attempt it.
+Due to the ROMs being 8Mbit in size, smaller ROMs will once again encounter an issue with the WE/ pin being driven by an address signal. Unlike the 2500 series, there are no pre-existing jumpers to address this, so a hardware mod is required to be implemented by the user. This requires some fine and delicate soldering, so unfortunately will not be accessible to everyone. More details about this are provided in the [ROM Address Signal Mods](#rom-address-signal-mods) section.
 
-<img src="images/1600-rom-mod.png">
-<img src="images/1600-rom-modded.jpg">
-
-The jumper can then be added to run the factory boot ROMs, or removed for 1, 2 or 4Mbit ROMs.
-
-**Important Notes:**
-A side effect of making this modification is that a pin on each of the CPLDs will be affected, and so further modifications are required to restore the original address signal. Without this further modification, the address ranges of the PCMCIA controller and WIC slot in particular will be inaccessible. [More info](#a19-issue).
-
-As with the 2500, it should be possible to utilise the full capacity of 4Mbit ROMs by arranging the contents appropriately, taking into account the inverted nature of A19 (assuming base address of 0):
+If using the mod wire method described in the section linked above, and as with the 2500, it should be possible to utilise the full capacity of 4Mbit ROMs by arranging the contents appropriately, taking into account the inverted nature of A19 (assuming base address of 0):
 
 * FW1/FW2
   * CPU 0x0-3FFFF/ROM 0x40000-7FFFF when CPU A19/ROM A18 is high
@@ -920,25 +914,65 @@ The CPU features a PLL which takes input from a (as manufactured) 4MHz crystal. 
 
 I did some quick testing and it seems like you can quite easily push the CPU (33MHz rated part in my case) to at least 50MHz. I didnt run it for more than a minute or so, so long term stability is unknown, and depending on just how far you take it, maybe some additional cooling may be required, and wait states for memories may need to be adjusted as well.
 
-## A19 Issue
-As explained in the [Boot ROMs](#boot-roms) section, pin 31 of the boot ROM sockets is driven by the A19 signal from the CPU. On factory boot ROMs which are 8Mbit in size, this corresponds with the A18 signal. But on smaller ROMs, such as 1, 2 and 4Mbit, pin 31 is the WE/ signal. Therefore a mod is required to be able to pull this signal high so that smaller ROMs can be used without inadvertently asserting the WE/ signal.
+## ROM Address Signal Mods
+As explained in the [Boot ROMs](#boot-roms) section, pin 31 of the boot ROM sockets is driven by the A19 signal from the CPU. On factory boot ROMs which are 8Mbit in size, this corresponds with the A18 signal. But on smaller ROMs, such as 1, 2 and 4Mbit, pin 31 is the WE/ signal. Therefore, some kind of modification or adapter is required to be able to pull the WE/ signal high so that smaller ROMs can be used without it being inadvertently asserted.
 
-Details of the required mod are included in the Boot ROMs section.
+There are two ways this can be achieved. One method involves cutting some tracks on the PCB and soldering bodge wires to a header that allows pin 31 to either be pulled high or connected to the original address signal. The other involves the use of a small adapter board that I have designed that completely removes the need to make any modifications.
 
-A side effect of this mod is that, when the mod is in use, the same signal that is fed into the two CPLDs will also be pulled high. This will cause address decoding for the WIC slot and PCMCIA controller registers in particular to fail, resulting in bus errors because a DSACK is never generated in response to an access.
+The first method is relatively cheap to implement, requiring only some fine hookup wire (e.g. 30AWG wire wrap wire), a small header and a single resistor, but it is fiddly to implement and requires fine soldering tools and some patience. The adapter board which removes the need to make any modifications comes at some expense and may require some additional tools for soldering surface mount components. In particular for the adapter board, two PLCC32 "headers" are required, and the cheapest I could find worked out to around £10-15 each - and I had to buy a minimum of 10 from the supplier I found.
 
-Therefore a further modification is required to restore the signal fed to the CPLDs to the original address signal. This requires cutting two short traces by each pin, disconnecting it from a via, and soldering some mod wires.
+### Fiddly mods method
+In this section I will cover the details of making the mod yourself by cutting some traces and soldering in some bodge wires and components.
 
-The following two images show which traces need to be disconnected from their vias, and how to route the mod wires.
+The following diagram summaries the modification that is required:
+
+<img src="images/mod-summary.png">
+
+The following image represents how the modification needs to be made at pin 15 of a buffer for part of the address bus:
+
+<img src="images/1600-rom-mod.png">
+
+Cutting the trace at pin 15 allows the signal to be re-routed to a header, with one side connected to pin 15 of the buffer, and the other side with a pull up resistor connected to the other side of the cut trace. This looks as follows:
+
+<img src="images/1600-rom-modded.jpg">
+
+With this level of modification, pin 31 of the ROM socket can either be connected to its original signal by installing a jumper on the header, or can be pulled permanently high by removing the jumper. The former permits 8Mbit ROMs (i.e. the original factory ROMs) to be used, while the later will allow 1, 2 and 4Mbit ROMs to be used.
+
+But leaving the modifications in this state, and in particular if you remove the jumper, will cause two CPLD pins to be pulled permanently high as well, and this will cause problems accessing certain portions of the address space. So two more traces need to be cut, and a further mod wire needs to be run to ensure that the CPLD pins are always connected to the original address signal regardless of whether the jumper is installed or not:
 
 <img src="images/a19-cut-traces.jpg">
 <img src="images/a19-cpld-mod-wires.jpg">
 
-Unfortunately, unless you have good soldering skills yourself, or access to a friend or colleague who does, the number of fiddly mods required to be made to this router will put it out of reach of many hackers, or a more creative solution needs to be found to deal with the ROM sockets and avoid all of this.
+With this final mod wire in place, the router is fully modified and can be used with original factory ROMs (install jumper) or smaller ROMs running your own code (remove jumper).
 
-The following image is a representation of the original circuitry, and the circuitry after the mods are completed.
+### ROM adapter method
+The less fiddly method involves a small adapter board that I have designed. It features two PLCC32 headers which plug into the original sockets of the router, and provides two new sockets that have the signals rearranged as follows:
 
-<img src="images/mod-summary.png">
+* pin 31 of the original socket is routed to pin 1 (A18) of the adapter socket, creating a fully linear and sequential address space for 4Mbit ROMs
+* pin 31 of the adapter socket is tied to Vcc to ensure the WE/ signal cannot be asserted
+
+Images of the adapter board:
+
+<img src="images/1600-rom-adapter-top.jpg">
+<img src="images/1600-rom-adapter-bottom.jpg">
+<img src="images/1600-rom-adapter-socketed.jpg">
+
+If there is sufficient interest I could produce a small batch of these adapters for people to buy, just be aware they could end up costing more than the router itself!
+
+If you want to attempt to make these boards yourself, gerbers are provided in the hardware directory, and these are the part numbers for the sockets and PLCC headers:
+
+* Preci-Dip 540-88-032-17-400 sockets
+* Winslow Adaptics W9324-ZC-160 headers
+
+The supplied EAGLE library includes footprints for these parts also.
+
+Specifications of the board should be:
+
+* PCB thickness: 1.6mm
+* Dimension: 39x23mm
+* Layers: 2, 1oz copper
+* Material: FR4
+* Colour: whatever you want
 
 ## WIC Breakout Board
 To help with prototyping your projects, in particular those where you want to make use of the WIC slot, Ive designed a breakout board that presents all signals on some 0.1" pin headers.
