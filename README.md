@@ -451,14 +451,13 @@ The following GPIO pins are known to be used for the noted purposes, based on th
 * PORTA
   * PA0 - Ethernet RXD (SCC1)
   * PA1 - Ethernet TXD (SCC1)
-  * PA3 - WIC pin 63
-  * PA4 - WIC pin 40
-  * PA5 - WIC pin 7
+  * PA4 - WIC pin 40 and 63 (SCC3)
+  * PA5 - WIC pin 7 (SCC3)
   * PA9 - connected to an external 8.064MHz oscillator (aka CLK2 - can be supplied to a BRG)
   * PA10 - Ethernet TCLK
   * PA11 - Ethernet RCLK
   * PA12 - WIC pin 5
-  * PA13 - WIC pin 38
+  * PA13 - WIC pin 38 and 65
 * PORTB
   * PB0 - Would be SPISEL/, but unused
   * PB1 - WIC EEPROM SK (SPICLK)
