@@ -34,27 +34,30 @@ OUTPUT_ARCH(m68k)
 __rom_end = (__rom_base + __rom_sz);
 __ram_end = (__ram_base + __ram_sz);
 
-__reset_org = __rom_base;
-__ivt_org = __rom_base + 0x8;
+__evt_org = __rom_base;
 __text_org = __rom_base + 0x400;
 __text_sz = __rom_sz - 0x400;
 __data_org = __ram_base;
 __data_sz = __ram_sz;
 
+/* Make sure stack size is a multiple of 16, and at least the amount the user
+ * thought they were getting. */
+__stack_sz += 15;
+__stack_sz &= ~0xF;
+
 MEMORY {
-    reset        (r!ax) : ORIGIN = __reset_org, LENGTH = 0x8
-    ivt          (r!ax) : ORIGIN = __ivt_org, LENGTH = 0x3F8
+    evt          (r!ax) : ORIGIN = __evt_org, LENGTH = 0x400
     text         (rx!w) : ORIGIN = __text_org, LENGTH = __text_sz
     data        (rwx!a) : ORIGIN = __data_org, LENGTH = __data_sz
 }
 
 SECTIONS {
-    .reset : {
+    .evt : {
+        /* Reset vector */
         LONG(__ram_end);                /* Initial SSP */
         LONG(ABSOLUTE(_start));         /* Initial PC */
-    } > reset
 
-    .ivt : {
+        /* Exception vector table */
         LONG(DEFINED(BusError) ? ABSOLUTE(BusError) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(AddressError) ? ABSOLUTE(AddressError) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(IllegalInstruction) ? ABSOLUTE(IllegalInstruction) : ABSOLUTE(__DefaultInterrupt));
@@ -69,7 +72,14 @@ SECTIONS {
         LONG(DEFINED(CoprocessorProtocolViolation) ? ABSOLUTE(CoprocessorProtocolViolation) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(FormatError) ? ABSOLUTE(FormatError) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(UninitializedInterruptVector) ? ABSOLUTE(UninitializedInterruptVector) : ABSOLUTE(__DefaultInterrupt));
-        . = 0x60-0x8; /* Reserved vector entries */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
         LONG(DEFINED(SpuriousInterrupt) ? ABSOLUTE(SpuriousInterrupt) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(IRQ1) ? ABSOLUTE(IRQ1) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(IRQ2) ? ABSOLUTE(IRQ2) : ABSOLUTE(__DefaultInterrupt));
@@ -94,8 +104,22 @@ SECTIONS {
         LONG(DEFINED(TRAP13) ? ABSOLUTE(TRAP13) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(TRAP14) ? ABSOLUTE(TRAP14) : ABSOLUTE(__DefaultInterrupt));
         LONG(DEFINED(TRAP15) ? ABSOLUTE(TRAP15) : ABSOLUTE(__DefaultInterrupt));
-        /* Reserved vector entries */
-        . = 0x100-0x8;
+        LONG(DEFINED(FPBranchOrSetUnorderedCondition) ? ABSOLUTE(FPBranchOrSetUnorderedCondition) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(FPInexactResult) ? ABSOLUTE(FPInexactResult) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(FPZeroDivide) ? ABSOLUTE(FPZeroDivide) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(FPUnderflow) ? ABSOLUTE(FPUnderflow) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(FPOperandError) ? ABSOLUTE(FPOperandError) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(FPOverflow) ? ABSOLUTE(FPOverflow) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(FPSignallingNAN) ? ABSOLUTE(FPSignallingNAN) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(FPUnimplementedDataType) ? ABSOLUTE(FPUnimplementedDataType) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(MMUConfigurationError) ? ABSOLUTE(MMUConfigurationError) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(MMUIllegalOperation) ? ABSOLUTE(MMUIllegalOperation) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(MMUAccessLevelViolation) ? ABSOLUTE(MMUAccessLevelViolation) : ABSOLUTE(__DefaultInterrupt));
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
+        LONG(0); /* Unassigned, reserved */
 /*
  *
  * User Interrupt Vectors
@@ -104,24 +128,52 @@ SECTIONS {
  *   Hex    Dec       Hex      Dec
  *   40-FF  64-255    100-3FC  256-1020
  *
- * To calculate the offset within the .ivt section to place your vector, use
- * the following calculation, assuming vector number = 0x50:
+ * To calculate the offset within the .evt section to place your vector, use
+ * the following calculation (assuming vector number = 0x50):
  *
- *   0x50 * 4 = 0x140 (address in ROM)
- *   0x140 - 8 = 0x138 (offset in .ivt section)
- *
- * Subtracting 8 is necessary since the .ivt section begins at address 0x8,
- * and origins are calculated from the beginning of each section.
+ *   0x50 * 4 = 0x140
  *
  * You could then place your vector at that position in the vector table as
  * follows:
  *
- *   . = 0x138;
+ *   . = 0x140;
  *   LONG(ABSOLUTE(NameOfHandlerFunction));
  */
-        . = 0x288;
-        LONG(ABSOLUTE(SMC1InterruptHandler));   /* Vector 0xA4 */
-    } > ivt
+        /* 0xE0-FF: Communication Processor Module (CPM) */
+        . = 0x380;
+        LONG(DEFINED(CPMErrorHandler) ? ABSOLUTE(CPMErrorHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC11InterruptHandler) ? ABSOLUTE(PC11InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC10InterruptHandler) ? ABSOLUTE(PC10InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SMC2PIPInterruptHandler) ? ABSOLUTE(SMC2PIPInterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SMC1InterruptHandler) ? ABSOLUTE(SMC1InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SPIInterruptHandler) ? ABSOLUTE(SPIInterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC9InterruptHandler) ? ABSOLUTE(PC9InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(Timer4InterruptHandler) ? ABSOLUTE(Timer4InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(0); /* Unassigned, reserved */
+        LONG(DEFINED(PC8InterruptHandler) ? ABSOLUTE(PC8InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC7InterruptHandler) ? ABSOLUTE(PC7InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC6InterruptHandler) ? ABSOLUTE(PC6InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(Timer3InterruptHandler) ? ABSOLUTE(Timer3InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(0); /* Unassigned, reserved */
+        LONG(DEFINED(PC5InterruptHandler) ? ABSOLUTE(PC5InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC4InterruptHandler) ? ABSOLUTE(PC4InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(0); /* Unassigned, reserved */
+        LONG(DEFINED(RISCTimerTableInterruptHandler) ? ABSOLUTE(RISCTimerTableInterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(Timer2InterruptHandler) ? ABSOLUTE(Timer2InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(0); /* Unassigned, reserved */
+        LONG(DEFINED(IDMA2InterruptHandler) ? ABSOLUTE(IDMA2InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(IDMA1InterruptHandler) ? ABSOLUTE(IDMA1InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SDMAChannelBusErrorHandler) ? ABSOLUTE(SDMAChannelBusErrorHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC3InterruptHandler) ? ABSOLUTE(PC3InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC2InterruptHandler) ? ABSOLUTE(PC2InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(Timer1InterruptHandler) ? ABSOLUTE(Timer1InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC1InterruptHandler) ? ABSOLUTE(PC1InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SCC4InterruptHandler) ? ABSOLUTE(SCC4InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SCC3InterruptHandler) ? ABSOLUTE(SCC3InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SCC2InterruptHandler) ? ABSOLUTE(SCC2InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(SCC1InterruptHandler) ? ABSOLUTE(SCC1InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+        LONG(DEFINED(PC0InterruptHandler) ? ABSOLUTE(PC0InterruptHandler) : ABSOLUTE(__DefaultInterrupt));
+    } > evt
 
     .text : {
         _text_start = .;

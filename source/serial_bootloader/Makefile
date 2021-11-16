@@ -16,7 +16,7 @@
 
 CPU=cpu32
 
-PREFIX=m68k-unknown-elf
+PREFIX=m68k-eabi-elf
 
 OBJ=main.o
 
@@ -50,7 +50,6 @@ bmbinary: $(OBJ)
 -include $(DEP)
 
 crt: crt0.o
-	$(AS) -o crt0.o $(AFLAGS) crt0.s
 
 clean:
 	rm -f bmbinary bmbinary.rom bmbinary.srec $(OBJ) $(DEP)
@@ -61,12 +60,12 @@ rom:
 	python3 roms.py
 
 dump:
-	$(OBJDUMP) -belf32-m68k -st -j.reset -j.ivt bmbinary
+	$(OBJDUMP) -belf32-m68k -st -j.evt bmbinary
 	$(OBJDUMP) -belf32-m68k -dt -j.text bmbinary
 	$(OBJDUMP) -belf32-m68k -st -j.rodata -j.data -j.bss bmbinary
 
 dumps:
-	$(OBJDUMP) -belf32-m68k -st -j.reset -j.ivt bmbinary
+	$(OBJDUMP) -belf32-m68k -st -j.evt bmbinary
 	$(OBJDUMP) -belf32-m68k -St -j.text bmbinary
 	$(OBJDUMP) -belf32-m68k -st -j.rodata -j.data -j.bss -j.pbss bmbinary
 
