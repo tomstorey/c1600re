@@ -1,4 +1,6 @@
-    .title "crt0.s for MC68360 bare metal"
+    .title "crt0.S for MC68360 bare metal"
+
+#include "C1600R.h"
 
     .extern main
     .extern __rom_base
@@ -15,8 +17,8 @@ _start:
     /* Setup SR for supervisor state, and mask all interrupts */
     move.w  #0x2700, %sr
 
-    /* Init SP to internal SRAM - DRAM not available yet */
-    movea.l #0x0FF00400, %sp
+    /* Init SP to internal DPRAM */
+    movea.l #(MODULE_BASE + 0x400), %sp
 
     /* Configure VBR to start of ROM */
     lea     __rom_base, %a0
@@ -28,21 +30,21 @@ _start:
     movec   %d0, %dfc
 
     /* Configure MBAR to point to address 0x0FF00000 - stack now useable */
-    move.l  #0x0FF00001, %d0
+    move.l  #(MODULE_BASE + 1), %d0
     moves.l %d0, 0x3FF00
     moves.l 0x3FF00, %d0
 
     /* Zeroise internal dual-port RAM (user data and parameter RAM) */
     move.l  #0x3FF, %d0
     clr.l   %d1
-    movea.l #0x0FF00000, %a0
+    movea.l #MODULE_BASE, %a0
 
 0:
     move.l  %d1, %a0@+
     dbf     %d0, 0b
 
     /* Make sure Breakpoint Control Register is cleared */
-    clr.l   0x0FF01034                  /* BKCR */
+    clr.l   BKCR
 
 .call_main:
     jsr     main
@@ -60,6 +62,7 @@ _start:
     .weak __DefaultInterrupt
 
 __DefaultInterrupt:
+    move.b  #0, (LEDCR)
     rte
 
     .end
