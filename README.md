@@ -453,6 +453,7 @@ The following GPIO pins are known to be used for the noted purposes, based on th
   * PA1 - Ethernet TXD (SCC1)
   * PA4 - WIC pin 40 and 63 (SCC3)
   * PA5 - WIC pin 7 (SCC3)
+  * PA8 - connected to ISDN controller DCL (aka CLK1 - can be supplied to a BRG)
   * PA9 - connected to an external 8.064MHz oscillator (aka CLK2 - can be supplied to a BRG)
   * PA10 - Ethernet TCLK
   * PA11 - Ethernet RCLK
