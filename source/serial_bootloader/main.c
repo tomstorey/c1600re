@@ -131,7 +131,6 @@ init_others(void)
     /*
      * Initialise other registers
      */
-    SYPCR = 0x47;               /* Enables bus monitor, disable dog */
     SDCR = 0x0740;              /* Recommended by User Manual */
 
     CICR = 0x390001;            /* SCC priorities and spreading */
@@ -235,25 +234,25 @@ init_console_uart(void)
      * ((9629 - 9600) / 9600) * 1000 = +3.02%
      *
      * An absolute error rate of less than 5% is acceptable. */
-    BRGC1 = 1 << _BRGC1_RST_POSITION; /* Reset the BRG */
+    BRGC4 = 1 << _BRGC4_RST_POSITION; /* Reset the BRG */
 
     if (SYSOPTbits.SPEED == 0) {
         /* Configure clock divider to produce the desired baud rate at 33MHz,
          * and enable the BRG */
-        BRGC1bits.CD = (FCY_33MHZ / (CONSOLE_BAUD * 16));
+        BRGC4bits.CD = (FCY_33MHZ / (CONSOLE_BAUD * 16));
     } else {
         /* Configure clock divider to produce the desired baud rate at 25MHz,
          * and enable the BRG */
-        BRGC1bits.CD = (FCY_25MHZ / (CONSOLE_BAUD * 16));
+        BRGC4bits.CD = (FCY_25MHZ / (CONSOLE_BAUD * 16));
     }
 
-    BRGC1bits.ATB = 0;
-    BRGC1bits.EN = 1;
+    BRGC4bits.ATB = 0;
+    BRGC4bits.EN = 1;
 
 #ifdef USE_SCC3_UART
-    /* Connect BRG1 to SCC3 */
-    SICRbits.R3CS = 0;
-    SICRbits.T3CS = 0;
+    /* Connect BRG4 to SCC3 */
+    SICRbits.R3CS = 3;
+    SICRbits.T3CS = 3;
     SICRbits.SC3 = 0;
 
     /* Set buffer descriptor pointers */
@@ -266,10 +265,11 @@ init_console_uart(void)
     SCC3TFCRbits.MOT = 1;
     SCC3TFCRbits.FC = 8;
 
-    SCC3MRBLR = 1;              /* Maximum receive buffer length */
+    SCC3MRBLR = 4;              /* Maximum receive buffer length */
+
+    SCC3MAX_IDL = 4;            /* BD closes after 4 idle chars */
 
     /* Clear/initialise defaults as recommended by the User Manual */
-    SCC3MAX_IDL = 0;
     SCC3BRKCR = 0;
     SCC3PAREC = 0;
     SCC3FRMEC = 0;
@@ -298,9 +298,9 @@ init_console_uart(void)
     PSMR3 = 0;                  /* Disable parity and flow control */
     PSMR3UARTbits.CL = 3;       /* 8 bit chars */
 #else /* USE_SCC3_UART */
-    /* Connect BRG1 to SMC1 */
+    /* Connect BRG4 to SMC1 */
     SIMODEbits.SMC1 = 0;
-    SIMODEbits.SMC1CS = 0;
+    SIMODEbits.SMC1CS = 3;
 
     /* Set buffer descriptor pointers */
     SMC1RBASE = (uint16_t)((uint32_t)rxbd);
@@ -312,9 +312,9 @@ init_console_uart(void)
     SMC1TFCRbits.MOT = 1;
     SMC1TFCRbits.FC = 8;
     
-    SMC1MRBLR = 1;              /* Maximum receive buffer length */
+    SMC1MRBLR = 4;              /* Maximum receive buffer length */
 
-    SMC1MAX_IDL = 0;            /* Disable idle function */
+    SMC1MAX_IDL = 4;            /* BD closes after 4 idle chars */
 
     /* Configure SMC1 for UART, 8 bits, no parity */
     SMCMR1 = 0;
@@ -381,6 +381,13 @@ init_final(void)
 
     PBDATbits.D8 = 0;           /* DTR to idle state */
 #endif /* USE_SCC3_UART */
+
+    /* Configure the PIT for a ~10ms interval, which will service the SWT to
+     * ensure it doesnt cause a reset. The default SWT timeout period is about
+     * 1 second, so this should be plenty frequent. */
+    PICRbits.PIRQL = 1;         /* IRQ 1 */
+    PICRbits.PIV = 0x40;        /* Vector 0x40 */
+    PITRbits.CTR = 0x4E;        /* Approx 10ms */
 
     /* Unmask interrupts */
     asm volatile ("andi.w #0xF8FF, %sr");
@@ -456,16 +463,16 @@ main(void)
                     /* Delay while next buffer descriptor is in use */
                     while (rxbd[bd_idx].flags.E);
 
-                    /* How much more data can we receive? */
-                    if (data_len > MAX_MRBLR) {
-                        MRBLR_REG = MAX_MRBLR;
-                    } else {
-                        MRBLR_REG = data_len;
-                    }
-
+                    /* Setup pointer to next write address */
                     rxbd[bd_idx].DST = (uint8_t *)addr;
                     addr += MRBLR_REG;
-                    data_len -= MRBLR_REG;
+
+                    /* Adjust remaining data length */
+                    if (data_len >= MRBLR_REG) {
+                        data_len -= MRBLR_REG;
+                    } else {
+                        data_len = 0;
+                    }
 
                     if (data_len == 0) {
                         /* This is the last BD that needs to be configured, so
@@ -526,6 +533,12 @@ main(void)
                 /* Delay a bit to ensure last operation has completed */
                 for (ctr = 50000; ctr > 0; ctr--);
 
+                /* Service the watchdog and reset the PIT configuration */
+                SWSR = 0x55;
+                SWSR = 0xAA;
+                PITRbits.CTR = 0;
+                PICR = 0x000F;
+
                 if (state == STATE_EXECUTE) {
                     asm volatile(
                         /* Put addr into A0 then jump to subroutine  */
@@ -567,7 +580,7 @@ main(void)
 
                 while (rxbd[0].flags.E == 1);
 
-                /* Next get the address where the data is to be loaded */
+                /* Next get the address where the data is to be read from */
                 rxbd[0].DST = (uint8_t *)&addr;
                 rxbd[0].flags.u16 = 0xA000;
 
@@ -819,3 +832,14 @@ SMC1InterruptHandler(void)
     CISR = 1 << _CISR_SMC1_POSITION;
 }
 #endif /* USE_SCC3_UART */
+
+void __attribute__((interrupt))
+PITInterruptHandler(void)
+{
+    /* Service the watchdog to prevent a reset. This is necessary because in
+     * the bootloader, we do not touch the SYPCR value which is a write-once
+     * register. This leaves it available to the loaded application to
+     * configure it as required. */
+    SWSR = 0x55;
+    SWSR = 0xAA;
+}
